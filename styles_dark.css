@@ -6,18 +6,18 @@
 
 /* ─── ПЕРЕМЕННЫЕ ─────────────────────────────────── */
 :root {
-    --bg:       #05060F;
-    --bg2:      #08091A;
-    --bg3:      #0B0D22;
+    --bg:       #050507;
+    --bg2:      #0B0A0F;
+    --bg3:      #111015;
     --card:     #0E1028;
-    --card2:    #111430;
+    --card2:    #17151D;
     --br:       rgba(130, 100, 205, 0.16);
     --br-h:     rgba(175, 145, 245, 0.42);
-    --br-g:     rgba(196, 162, 72, 0.28);
-    --purple:   #8A6DC0;
-    --purple-l: #AA8EDE;
-    --gold:     #C4A24A;
-    --gold-l:   #DEBA6C;
+    --br-g:     rgba(212, 174, 92, 0.34);
+    --purple:   #4A3A2A;
+    --purple-l: #755A35;
+    --gold:     #D4AE5C;
+    --gold-l:   #E8C67B;
     --red-dim:  #9E4040;
     --t1:  #EDE8FF;
     --t2:  #8892B8;
@@ -1009,7 +1009,7 @@ h1, h2, h3 { font-family: 'Cinzel', serif; font-weight: 600; color: var(--t1); l
     .nav-links.mobile-open { transform: translateY(0); }
     .nav-link { font-size: 15px; padding: 12px 0; border-bottom: 1px solid rgba(130,100,205,0.08); }
     .nav-link::after { display: none; }
-    .fab-telegram { bottom: 88px; right: 16px; width: 46px; height: 46px; font-size: 18px; }
+    .fab-whatsapp { bottom: 88px; right: 16px; width: 46px; height: 46px; font-size: 18px; }
     .fab-scroll-top { bottom: 32px; right: 16px; width: 46px; height: 46px; font-size: 16px; }
 }
 @media (max-width: 480px) {
@@ -1083,17 +1083,18 @@ h1, h2, h3 { font-family: 'Cinzel', serif; font-weight: 600; color: var(--t1); l
 }
 
 /* ─── ПЛАВАЮЩИЕ КНОПКИ ───────────────────────────── */
-.fab-telegram {
+.fab-whatsapp {
     position: fixed; bottom: 90px; right: 24px;
     width: 52px; height: 52px;
-    background: linear-gradient(135deg, #2AABEE, #229ED9);
+    background: linear-gradient(135deg, #25D366, #1ebe5a);
     color: #fff; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     font-size: 22px; text-decoration: none;
-    box-shadow: 0 4px 20px rgba(34,158,217,0.45);
+    font-weight: 700;
+    box-shadow: 0 4px 20px rgba(37,211,102,0.45);
     z-index: 500; transition: var(--tr);
 }
-.fab-telegram:hover { transform: scale(1.12) translateY(-3px); box-shadow: 0 8px 30px rgba(34,158,217,0.6); }
+.fab-whatsapp:hover { transform: scale(1.12) translateY(-3px); box-shadow: 0 8px 30px rgba(37,211,102,0.6); }
 .fab-scroll-top {
     position: fixed; bottom: 28px; right: 24px;
     width: 52px; height: 52px;
@@ -1106,6 +1107,67 @@ h1, h2, h3 { font-family: 'Cinzel', serif; font-weight: 600; color: var(--t1); l
 }
 .fab-scroll-top.visible { opacity: 1; pointer-events: all; }
 .fab-scroll-top:hover { border-color: var(--br-g); box-shadow: var(--glow-g); transform: translateY(-3px); }
+
+/* ─── AI ПОДДЕРЖКА ─────────────────────────────── */
+.support-widget {
+    position: fixed;
+    right: 24px;
+    bottom: 150px;
+    z-index: 600;
+    width: min(360px, calc(100vw - 32px));
+}
+.support-toggle {
+    width: 100%;
+    border: 1px solid var(--br-g);
+    border-radius: 12px;
+    background: linear-gradient(135deg, #1a171f, #221d12);
+    color: var(--gold-l);
+    padding: 11px 14px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+}
+.support-panel {
+    display: none;
+    margin-top: 10px;
+    background: var(--card2);
+    border: 1px solid var(--br-g);
+    border-radius: 14px;
+    padding: 14px;
+    box-shadow: var(--shadow);
+}
+.support-widget.open .support-panel { display: block; }
+.support-panel h4 {
+    font-family: 'Cinzel', serif;
+    color: var(--gold-l);
+    margin-bottom: 4px;
+}
+.support-panel p {
+    font-size: 12px;
+    color: var(--t3);
+    margin-bottom: 10px;
+}
+.support-panel textarea {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--br);
+    border-radius: 10px;
+    color: var(--t1);
+    padding: 10px;
+    resize: vertical;
+    min-height: 88px;
+    margin-bottom: 10px;
+}
+.support-answer {
+    margin-top: 10px;
+    background: rgba(212,174,92,0.08);
+    border: 1px solid var(--br-g);
+    border-radius: 10px;
+    padding: 10px;
+    color: var(--t1);
+    font-size: 13px;
+    line-height: 1.6;
+}
 
 /* ─── FAQ ────────────────────────────────────────── */
 .faq { background: var(--bg2); }

@@ -327,6 +327,7 @@ if ('requestIdleCallback' in window) {
    ============================================ */
 
 const ADMIN_ACCESS_CODE = 'ROZA-ADMIN-2026';
+const API_BASE = localStorage.getItem('apiBaseUrl') || 'http://127.0.0.1:5000';
 
 function getStorageArray(key) {
     try {
@@ -625,33 +626,57 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    bookingForm.addEventListener('submit', (e) => {
+    bookingForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const values = Array.from(bookingForm.querySelectorAll('input, select, textarea'))
-            .map((field) => ({
-                name: field.previousElementSibling ? field.previousElementSibling.textContent.trim() : field.name || field.id,
-                value: field.value
-            }))
-            .filter((f) => !!f.value);
-
         const nameField = bookingForm.querySelector('input[type="text"]');
+        const phoneField = bookingForm.querySelector('input[type="tel"]');
         const emailField = bookingForm.querySelector('input[type="email"]');
         const serviceField = bookingForm.querySelector('select');
         const dateField = bookingForm.querySelector('input[type="date"]');
         const timeField = bookingForm.querySelector('input[type="time"]');
+        const noteField = bookingForm.querySelector('textarea');
 
-        addAdminRecord('bookings', {
-            name: nameField ? nameField.value : 'Не указано',
-            email: emailField ? emailField.value : 'Не указано',
-            service: serviceField ? serviceField.options[serviceField.selectedIndex].text : 'Не указано',
+        const payload = {
+            name: nameField ? nameField.value.trim() : '',
+            phone: phoneField ? phoneField.value.trim() : '',
+            email: emailField ? emailField.value.trim() : '',
+            service: serviceField ? serviceField.options[serviceField.selectedIndex].text : '',
             date: dateField ? dateField.value : '',
             time: timeField ? timeField.value : '',
-            source: 'index-booking',
-            formValues: values
-        });
+            format: 'Запись через сайт',
+            note: noteField ? noteField.value.trim() : ''
+        };
 
-        bookingForm.reset();
-        showSuccess('Заявка сохранена. Подтверждение придет в ближайшее время.');
+        try {
+            const response = await fetch(API_BASE + '/api/bookings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                if (data && data.conflict) {
+                    showError((data.message || 'Это время занято') + (data.suggestedTime ? (' Рекомендуем: ' + data.suggestedTime) : ''));
+                    return;
+                }
+                showError(data.message || 'Не удалось записаться');
+                return;
+            }
+
+            addAdminRecord('bookings', {
+                name: payload.name || 'Не указано',
+                email: payload.email || 'Не указано',
+                service: payload.service || 'Не указано',
+                date: payload.date,
+                time: payload.time,
+                source: 'index-booking-api'
+            });
+
+            bookingForm.reset();
+            showSuccess('Вы успешно записаны. Уведомления отправлены автоматически.');
+        } catch (error) {
+            showError('Сервер записи недоступен. Проверьте backend и повторите попытку.');
+        }
     });
 });
 
@@ -1039,3 +1064,46 @@ window.addEventListener('load', () => {
         setTimeout(() => preloader.classList.add('hidden'), 1400);
     }
 });
+
+/* ============================================
+   AI ТЕХПОДДЕРЖКА
+   ============================================ */
+
+function toggleSupportWidget() {
+    const widget = document.getElementById('supportWidget');
+    if (widget) {
+        widget.classList.toggle('open');
+    }
+}
+
+async function askSupportAI() {
+    const qEl = document.getElementById('supportQuestion');
+    const aEl = document.getElementById('supportAnswer');
+    if (!qEl || !aEl) {
+        return;
+    }
+    const question = qEl.value.trim();
+    if (question.length < 4) {
+        showError('Введите технический вопрос подробнее');
+        return;
+    }
+
+    aEl.classList.remove('hidden');
+    aEl.textContent = 'Обрабатываю запрос...';
+
+    try {
+        const response = await fetch(API_BASE + '/api/support', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question })
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            aEl.textContent = data.message || 'Сервис поддержки временно недоступен';
+            return;
+        }
+        aEl.textContent = data.answer || 'Ответ не получен';
+    } catch (error) {
+        aEl.textContent = 'Не удалось связаться с AI поддержкой. Попробуйте позже.';
+    }
+}

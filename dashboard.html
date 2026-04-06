@@ -19,7 +19,7 @@
         <div class="sidebar-avatar" id="sidebarAvatar">А</div>
         <div>
             <div class="sidebar-user-name" id="sidebarName">Анна</div>
-            <div class="sidebar-user-plan" id="sidebarPlan">— Тариф: Светлый —</div>
+            <div class="sidebar-user-plan" id="sidebarPlan">— Обучение: не оплачено —</div>
         </div>
     </div>
 
@@ -43,7 +43,7 @@
 
         <div class="sidebar-section-label">Аккаунт</div>
         <a href="#" class="sidebar-link" onclick="showPage('subscription', this)">
-            <span class="sidebar-icon">◇</span> Подписка
+            <span class="sidebar-icon">◇</span> Обучение
         </a>
         <a href="#" class="sidebar-link" onclick="showPage('divinations', this)">
             <span class="sidebar-icon">✧</span> Гадания
@@ -102,19 +102,19 @@
                     <div class="kpi-change">+2 этот месяц</div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-label">Тариф</div>
-                    <div class="kpi-value gold" id="overviewPlan">Светлый</div>
-                    <div class="kpi-change">Активен до 6.05.2026</div>
+                    <div class="kpi-label">Обучение</div>
+                    <div class="kpi-value gold" id="overviewPlan">Не оплачено</div>
+                    <div class="kpi-change">Оплата по факту</div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-label">Осталось сеансов</div>
-                    <div class="kpi-value green">1</div>
-                    <div class="kpi-change">Из 1 по тарифу</div>
+                    <div class="kpi-label">Свободных мест</div>
+                    <div class="kpi-value green" id="trainingSpots">25</div>
+                    <div class="kpi-change">Лимит обучения</div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-label">Дней подписки</div>
-                    <div class="kpi-value" style="color:var(--t1)">30</div>
-                    <div class="kpi-change">До 6 мая 2026</div>
+                    <div class="kpi-label">Лист ожидания</div>
+                    <div class="kpi-value" style="color:var(--t1)" id="trainingWaiting">0</div>
+                    <div class="kpi-change">Автоматическое управление</div>
                 </div>
             </div>
 
@@ -146,14 +146,14 @@
                 </div>
 
                 <div class="card" style="margin-bottom:0">
-                    <div class="card-title">Ваша подписка <span>Активна</span></div>
-                    <h3 style="font-family:'Cinzel',serif;color:var(--gold-l);font-size:20px;margin-bottom:8px" id="overviewPlanCard">Тариф «Светлый»</h3>
-                    <p style="font-size:13px;color:var(--t3);margin-bottom:16px">Активен до 6 мая 2026</p>
+                    <div class="card-title">Отдел обучения <span>Новый поток</span></div>
+                    <h3 style="font-family:'Cinzel',serif;color:var(--gold-l);font-size:20px;margin-bottom:8px" id="overviewPlanCard">Статус: не оплачено</h3>
+                    <p style="font-size:13px;color:var(--t3);margin-bottom:16px">После подтверждения оплаты вы попадаете в список обучающихся</p>
                     <div class="progress-bar" style="margin-bottom:8px">
-                        <div class="progress-fill purple" style="width:30%"></div>
+                        <div class="progress-fill gold" id="trainingProgress" style="width:0%"></div>
                     </div>
-                    <p style="font-size:12px;color:var(--t3);margin-bottom:20px">1 из 1 сеанса использован</p>
-                    <button class="btn btn-gold btn-sm" onclick="showPage('subscription', document.querySelector('[onclick*=subscription]'))">Улучшить тариф</button>
+                    <p style="font-size:12px;color:var(--t3);margin-bottom:20px" id="trainingProgressText">0 из 25 мест занято</p>
+                    <button class="btn btn-gold btn-sm" onclick="showPage('subscription', document.querySelector('[onclick*=subscription]'))">Открыть обучение</button>
                 </div>
             </div>
 
@@ -209,7 +209,7 @@
                 <div class="profile-avatar-big" id="profileAvatarBig">А</div>
                 <div class="profile-avatar-info">
                     <h4 id="profileDisplayName">Анна Петрова</h4>
-                    <p>Участник с апреля 2026 · Тариф: <span style="color:var(--gold)">Светлый</span></p>
+                    <p>Участник с апреля 2026 · Обучение: <span style="color:var(--gold)">по заявке</span></p>
                     <button class="btn btn-outline btn-sm">Изменить фото</button>
                 </div>
             </div>
@@ -410,90 +410,61 @@
             </div>
         </div>
 
-        <!-- ─── СТРАНИЦА: ПОДПИСКА ────────────────── -->
+        <!-- ─── СТРАНИЦА: ОБУЧЕНИЕ ────────────────── -->
         <div id="page-subscription" class="page">
-            <span class="page-label">Тарифный план</span>
+            <span class="page-label">Отдел обучения</span>
             <div class="page-header">
-                <h1>Подписка</h1>
-                <p>Управляйте своим тарифным планом и оплатами</p>
+                <h1>Обучение</h1>
+                <p>Лимит 25 человек. При переполнении работает лист ожидания</p>
             </div>
 
             <div class="plan-current">
                 <div class="plan-header-row">
                     <div class="plan-title-area">
-                        <h2 id="currentPlanName">Тариф «Светлый»</h2>
-                        <p>Активен до 6 мая 2026 · Автопродление включено</p>
+                        <h2 id="currentPlanName">Программа «Практик Роза Оглы»</h2>
+                        <p>Оплата по факту, после подтверждения вы сразу попадаете в список обучающихся</p>
                     </div>
                     <div class="plan-price-display">
-                        <div><span class="price" id="currentPlanPrice">2 995</span><span class="currency"> ₸/мес</span></div>
+                        <div><span class="price" id="currentPlanPrice">75 000</span><span class="currency"> ₸</span></div>
                     </div>
                 </div>
                 <div class="plan-features-row">
-                    <span class="plan-feat-pill">1 сеанс / месяц</span>
-                    <span class="plan-feat-pill">Email-консультации</span>
-                    <span class="plan-feat-pill">Доступ к медитациям</span>
+                    <span class="plan-feat-pill">Мистические практики</span>
+                    <span class="plan-feat-pill">Поддержка наставника</span>
+                    <span class="plan-feat-pill">Закрытый список обучающихся</span>
                 </div>
                 <div class="progress-bar" style="margin-bottom:8px">
-                    <div class="progress-fill gold" style="width:100%"></div>
+                    <div class="progress-fill gold" id="trainingPageProgress" style="width:0%"></div>
                 </div>
-                <p style="font-size:12px;color:var(--t3);margin-bottom:20px">1 из 1 сеанса использован в этом месяце</p>
+                <p style="font-size:12px;color:var(--t3);margin-bottom:20px" id="trainingPageProgressText">0 из 25 мест занято</p>
                 <div class="plan-actions">
-                    <button class="btn btn-outline btn-sm">Отменить подписку</button>
-                    <button class="btn btn-gold btn-sm">Изменить платёжные данные</button>
+                    <button class="btn btn-gold btn-sm" onclick="startTrainingPayment()">Оплатить и вступить</button>
+                    <button class="btn btn-outline btn-sm" onclick="loadTrainingStatus()">Обновить статус</button>
                 </div>
             </div>
 
             <div class="card">
-                <div class="card-title">Доступные тарифы</div>
-                <div class="plan-options">
-                    <div class="plan-option current">
-                        <h3>Светлый</h3>
-                        <div class="plan-option-price">2 995 <span style="font-size:14px;color:var(--t3)">₸/мес</span></div>
-                        <p>1 сеанс в месяц, базовая поддержка</p>
-                        <br>
-                        <button class="btn btn-outline btn-sm" disabled style="opacity:0.4;cursor:default">Текущий план</button>
-                    </div>
-                    <div class="plan-option">
-                        <h3>Мудрый</h3>
-                        <div class="plan-option-price">7 795 <span style="font-size:14px;color:var(--t3)">₸/мес</span></div>
-                        <p>4 сеанса, все курсы, приоритет</p>
-                        <br>
-                        <button class="btn btn-primary btn-sm" onclick="startPlanPayment('Мудрый', '7 795')">Выбрать</button>
-                    </div>
-                    <div class="plan-option">
-                        <h3>Мастер</h3>
-                        <div class="plan-option-price">14 995 <span style="font-size:14px;color:var(--t3)">₸/мес</span></div>
-                        <p>Без ограничений, VIP, наставник</p>
-                        <br>
-                        <button class="btn btn-gold btn-sm" onclick="startPlanPayment('Мастер', '14 995')">Выбрать</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-title">История платежей <span>Последние 3</span></div>
+                <div class="card-title">Правила набора <span>Важно</span></div>
                 <div class="session-list">
                     <div class="session-item">
                         <div class="session-left">
                             <div class="session-icon">✦</div>
                             <div>
-                                <div class="session-name">Тариф «Светлый» — апрель 2026</div>
-                                <div class="session-date">6 апреля 2026</div>
+                                <div class="session-name">Лимит потока: 25 учеников</div>
+                                <div class="session-date">После достижения лимита включается лист ожидания</div>
                             </div>
                         </div>
-                        <span class="session-price">2 995 ₸</span>
-                        <span class="session-status status-done">Оплачен</span>
+                        <span class="session-status status-done">Активно</span>
                     </div>
                     <div class="session-item">
                         <div class="session-left">
                             <div class="session-icon">✦</div>
                             <div>
-                                <div class="session-name">Тариф «Светлый» — март 2026</div>
-                                <div class="session-date">6 марта 2026</div>
+                                <div class="session-name">Проверка оплаты обязательна</div>
+                                <div class="session-date">Без подтвержденной оплаты зачисление невозможно</div>
                             </div>
                         </div>
-                        <span class="session-price">2 995 ₸</span>
-                        <span class="session-status status-done">Оплачен</span>
+                        <span class="session-status status-upcoming">Проверка</span>
                     </div>
                 </div>
             </div>
@@ -559,7 +530,7 @@
                     <div class="toggle-row">
                         <div class="toggle-label">
                             <h4>Специальные предложения</h4>
-                            <p>Акции и скидки для подписчиков</p>
+                            <p>Акции и скидки для обучающихся</p>
                         </div>
                         <div class="toggle on" id="toggle-offers" onclick="toggleSetting(this)"></div>
                     </div>
@@ -619,9 +590,9 @@
 <div class="payment-overlay" id="paymentOverlay">
     <div class="payment-modal">
         <button class="payment-close" onclick="closePaymentModal()">×</button>
-        <h3>Оплата подписки</h3>
-        <p id="paymentPlanInfo">Тариф и сумма</p>
-        <form id="paymentForm" onsubmit="confirmPlanPayment(event)">
+        <h3>Оплата обучения</h3>
+        <p id="paymentPlanInfo">Программа и сумма</p>
+        <form id="paymentForm" onsubmit="confirmTrainingPayment(event)">
             <div class="form-group">
                 <label>Номер карты</label>
                 <input type="text" id="payCard" placeholder="0000 0000 0000 0000" minlength="16" maxlength="19" required>
@@ -648,13 +619,9 @@
 <script>
 /* ─── DASHBOARD JS ──────────────────────────────── */
 
-const planPrices = {
-    'Светлый': '2 995',
-    'Мудрый': '7 795',
-    'Мастер': '14 995'
-};
-
-let pendingPlan = null;
+const API_BASE = localStorage.getItem('apiBaseUrl') || 'http://127.0.0.1:5000';
+const trainingPrice = '75 000';
+let trainingPaymentPending = false;
 
 function getStorageArray(key) {
     try {
@@ -678,18 +645,43 @@ function addAdminRecord(key, payload) {
 function loadUser() {
     const userData = JSON.parse(localStorage.getItem('userData') || '{}');
     const name = userData.name || localStorage.getItem('userName') || 'Гость';
-    const plan = localStorage.getItem('userPlan') || 'Светлый';
+    const trainingState = localStorage.getItem('trainingState') || 'not_paid';
+    const trainingLabel = trainingState === 'accepted' ? 'зачислен' : (trainingState === 'waitlist' ? 'лист ожидания' : 'не оплачено');
 
     const initial = name.charAt(0).toUpperCase();
     document.getElementById('sidebarAvatar').textContent = initial;
     document.getElementById('sidebarName').textContent = name;
-    document.getElementById('sidebarPlan').textContent = '— Тариф: ' + plan + ' —';
+    document.getElementById('sidebarPlan').textContent = '— Обучение: ' + trainingLabel + ' —';
     document.getElementById('profileAvatarBig').textContent = initial;
     document.getElementById('profileDisplayName').textContent = name;
-    document.getElementById('overviewPlan').textContent = plan;
-    document.getElementById('overviewPlanCard').textContent = 'Тариф «' + plan + '»';
-    document.getElementById('currentPlanName').textContent = 'Тариф «' + plan + '»';
-    document.getElementById('currentPlanPrice').textContent = planPrices[plan] || '2 995';
+    document.getElementById('overviewPlan').textContent = trainingLabel;
+    document.getElementById('overviewPlanCard').textContent = 'Статус: ' + trainingLabel;
+    document.getElementById('currentPlanName').textContent = 'Программа «Практик Роза Оглы»';
+    document.getElementById('currentPlanPrice').textContent = trainingPrice;
+}
+
+async function loadTrainingStatus() {
+    try {
+        const response = await fetch(API_BASE + '/api/training/status');
+        const data = await response.json();
+        if (!response.ok || !data.ok) {
+            return;
+        }
+        const accepted = Number(data.accepted || 0);
+        const waiting = Number(data.waiting || 0);
+        const capacity = Number(data.capacity || 25);
+        const freeSpots = Math.max(0, capacity - accepted);
+        const progress = Math.min(100, Math.round((accepted / capacity) * 100));
+
+        document.getElementById('trainingSpots').textContent = String(freeSpots);
+        document.getElementById('trainingWaiting').textContent = String(waiting);
+        document.getElementById('trainingProgress').style.width = progress + '%';
+        document.getElementById('trainingPageProgress').style.width = progress + '%';
+        document.getElementById('trainingProgressText').textContent = accepted + ' из ' + capacity + ' мест занято';
+        document.getElementById('trainingPageProgressText').textContent = accepted + ' из ' + capacity + ' мест занято';
+    } catch (error) {
+        showNotify('Не удалось загрузить статус обучения', 'error');
+    }
 }
 
 // Навигация между страницами
@@ -705,8 +697,8 @@ function showPage(pageId, linkEl) {
         overview: ['Обзор', 'Сводная информация по вашему кабинету'],
         profile: ['Мой профиль', 'Личные данные и контакты'],
         sessions: ['Мои сеансы', 'Предстоящие встречи и история'],
-        booking: ['Новая запись', 'Запишитесь на следующий сеанс'],
-        subscription: ['Подписка', 'Тарифный план и платежи'],
+        booking: ['Новая запись', 'Запишитесь на прием'],
+        subscription: ['Обучение', 'Оплата, лимит мест, лист ожидания'],
         divinations: ['Гадания', 'Онлайн практики для вдохновения'],
         settings: ['Настройки', 'Параметры аккаунта и уведомлений']
     };
@@ -742,27 +734,36 @@ function saveProfile(e) {
 }
 
 // Отправка записи
-function submitBooking(e) {
+async function submitBooking(e) {
     e.preventDefault();
     const name = document.getElementById('bkName').value;
+    const phone = document.getElementById('bkPhone').value;
     const email = document.getElementById('bkEmail').value;
     const service = document.getElementById('bkService').value;
     const date = document.getElementById('bkDate').value;
     const time = document.getElementById('bkTime').value;
     const format = document.getElementById('bkFormat').value;
+    const note = document.getElementById('bkNote').value;
 
-    addAdminRecord('bookings', {
-        name,
-        email,
-        service,
-        date,
-        time,
-        format,
-        source: 'dashboard-booking'
-    });
+    try {
+        const response = await fetch(API_BASE + '/api/bookings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, phone, email, service, date, time, format, note })
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            const m = data.suggestedTime ? ((data.message || 'Это время занято') + ' Рекомендуем: ' + data.suggestedTime) : (data.message || 'Ошибка записи');
+            showNotify(m, 'error');
+            return;
+        }
 
-    showNotify('Заявка отправлена! Мастер свяжется с вами в течение часа.', 'success');
-    e.target.reset();
+        addAdminRecord('bookings', { name, email, service, date, time, format, source: 'dashboard-booking-api' });
+        showNotify('Запись создана. Уведомления отправлены автоматически.', 'success');
+        e.target.reset();
+    } catch (error) {
+        showNotify('Сервер записи недоступен', 'error');
+    }
 }
 
 // Смена пароля
@@ -772,22 +773,22 @@ function changePassword(e) {
     e.target.reset();
 }
 
-function startPlanPayment(name, price) {
-    pendingPlan = { name, price };
-    document.getElementById('paymentPlanInfo').textContent = 'Тариф «' + name + '» · ' + price + ' ₸/мес';
+function startTrainingPayment() {
+    trainingPaymentPending = true;
+    document.getElementById('paymentPlanInfo').textContent = 'Программа «Практик Роза Оглы» · ' + trainingPrice + ' ₸';
     document.getElementById('paymentOverlay').classList.add('active');
 }
 
 function closePaymentModal() {
     document.getElementById('paymentOverlay').classList.remove('active');
     document.getElementById('paymentForm').reset();
-    pendingPlan = null;
+    trainingPaymentPending = false;
 }
 
-function confirmPlanPayment(e) {
+async function confirmTrainingPayment(e) {
     e.preventDefault();
-    if (!pendingPlan) {
-        showNotify('План не выбран', 'error');
+    if (!trainingPaymentPending) {
+        showNotify('Платеж не инициализирован', 'error');
         return;
     }
 
@@ -809,30 +810,50 @@ function confirmPlanPayment(e) {
         return;
     }
 
-    localStorage.setItem('userPlan', pendingPlan.name);
-    loadUser();
+    const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+    const name = (localStorage.getItem('userName') || userData.name || holder || 'Ученик').trim();
+    const email = (userData.email || localStorage.getItem('userEmail') || '').trim();
+    const phone = (userData.phone || '').trim();
+    const paymentId = 'PAY-' + Date.now();
 
-    addAdminRecord('subscriptions', {
-        plan: pendingPlan.name,
-        amount: pendingPlan.price,
-        currency: 'KZT',
-        customerName: localStorage.getItem('userName') || 'Неизвестно',
-        customerEmail: (JSON.parse(localStorage.getItem('userData') || '{}').email) || localStorage.getItem('userEmail') || 'Неизвестно',
-        maskedCard: '**** **** **** ' + card.slice(-4),
-        holder,
-        status: 'paid',
-        source: 'dashboard-payment'
-    });
+    if (!email) {
+        showNotify('Для оплаты добавьте email в профиле', 'error');
+        return;
+    }
 
-    addAdminRecord('payments', {
-        purpose: 'subscription',
-        plan: pendingPlan.name,
-        amount: pendingPlan.price + ' ₸',
-        status: 'paid'
-    });
+    try {
+        const response = await fetch(API_BASE + '/api/training/enroll', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, phone, paymentId, cardLast4: card.slice(-4) })
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            showNotify(data.message || 'Не удалось подтвердить оплату', 'error');
+            return;
+        }
 
-    showNotify('Оплата прошла успешно. Тариф активирован!', 'success');
-    closePaymentModal();
+        localStorage.setItem('trainingState', data.status || 'accepted');
+        loadUser();
+        await loadTrainingStatus();
+
+        addAdminRecord('payments', {
+            purpose: 'training',
+            amount: trainingPrice + ' ₸',
+            status: 'paid',
+            paymentId,
+            maskedCard: '**** **** **** ' + card.slice(-4)
+        });
+
+        if (data.status === 'waitlist') {
+            showNotify('Оплата принята. Места заняты, вы в листе ожидания.', 'success');
+        } else {
+            showNotify('Оплата подтверждена. Вы зачислены в обучение!', 'success');
+        }
+        closePaymentModal();
+    } catch (error) {
+        showNotify('Сервер оплаты недоступен', 'error');
+    }
 }
 
 // Подтверждение удаления аккаунта
@@ -920,6 +941,7 @@ function checkAuth() {
 window.addEventListener('DOMContentLoaded', () => {
     checkAuth();
     loadUser();
+    loadTrainingStatus();
 
     // Хэш-навигация (#profile, #sessions и т.д.)
     const hash = window.location.hash.replace('#', '');

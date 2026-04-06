@@ -5,19 +5,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
 
 :root {
-    --bg:       #05060F;
-    --bg2:      #08091A;
-    --bg3:      #0B0D22;
-    --card:     #0E1028;
-    --card2:    #111430;
-    --sidebar:  #070818;
+    --bg:       #050507;
+    --bg2:      #0B0A0F;
+    --bg3:      #111015;
+    --card:     #15131a;
+    --card2:    #1b1821;
+    --sidebar:  #0d0b10;
     --br:       rgba(130, 100, 205, 0.16);
     --br-h:     rgba(175, 145, 245, 0.42);
-    --br-g:     rgba(196, 162, 72, 0.28);
-    --purple:   #8A6DC0;
-    --purple-l: #AA8EDE;
-    --gold:     #C4A24A;
-    --gold-l:   #DEBA6C;
+    --br-g:     rgba(212, 174, 92, 0.34);
+    --purple:   #4A3A2A;
+    --purple-l: #755A35;
+    --gold:     #D4AE5C;
+    --gold-l:   #E8C67B;
     --green:    #5ABF8A;
     --red:      #D06060;
     --t1:  #EDE8FF;
