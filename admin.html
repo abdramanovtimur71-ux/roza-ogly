@@ -38,6 +38,52 @@
             <article class="kpi"><div class="label">Сообщения</div><div class="val" id="kpiMessages">0</div></article>
         </section>
 
+        <section class="panel analytics-shell">
+            <div class="panel-head">
+                <h2>Аналитика клиентов и дохода</h2>
+                <button class="btn" type="button" onclick="refreshAnalytics()">Обновить аналитику</button>
+            </div>
+
+            <div class="analytics-cards">
+                <article class="analytic-card">
+                    <div class="label">Доход за все время</div>
+                    <div class="money" id="anTotalRevenue">0 ₸</div>
+                    <div class="hint" id="anPaidPayments">0 оплат</div>
+                </article>
+                <article class="analytic-card">
+                    <div class="label">Доход за месяц</div>
+                    <div class="money" id="anMonthRevenue">0 ₸</div>
+                    <div class="hint" id="anGrowth">Рост 0%</div>
+                </article>
+                <article class="analytic-card">
+                    <div class="label">Клиенты</div>
+                    <div class="money" id="anTotalClients">0</div>
+                    <div class="hint" id="anNewClients30">Новых за 30 дней: 0</div>
+                </article>
+                <article class="analytic-card">
+                    <div class="label">Обучение</div>
+                    <div class="money" id="anAccepted">0</div>
+                    <div class="hint" id="anWaitlist">Лист ожидания: 0</div>
+                </article>
+            </div>
+
+            <div class="analytics-grid">
+                <div class="chart-box">
+                    <h3>Доход за 6 месяцев</h3>
+                    <div class="bar-chart" id="revenueChart"></div>
+                </div>
+                <div class="chart-box">
+                    <h3>Топ услуг</h3>
+                    <div id="topServicesList" class="service-list"></div>
+                </div>
+            </div>
+
+            <div class="chart-box">
+                <h3>Топ клиентов по активности</h3>
+                <div id="tblTopClients" class="table-wrap"></div>
+            </div>
+        </section>
+
         <section class="panel">
             <h2>Добавить новую публикацию</h2>
             <form class="admin-form" id="contentForm" onsubmit="createContent(event)">
@@ -266,6 +312,86 @@
             return isNaN(d.getTime()) ? value : d.toLocaleString('ru-RU');
         }
 
+        function fmtMoney(value) {
+            return new Intl.NumberFormat('ru-RU').format(Number(value || 0)) + ' ₸';
+        }
+
+        function renderRevenueChart(labels, values) {
+            const root = document.getElementById('revenueChart');
+            if (!root) return;
+            if (!labels.length) {
+                root.innerHTML = '<div class="empty">Нет данных для графика</div>';
+                return;
+            }
+
+            const max = Math.max(...values, 1);
+            root.innerHTML = labels.map((label, idx) => {
+                const value = Number(values[idx] || 0);
+                const h = Math.max(8, Math.round((value / max) * 100));
+                return '<div class="bar-wrap">'
+                    + '<div class="bar" style="height:' + h + '%" title="' + fmtMoney(value) + '"></div>'
+                    + '<div class="bar-value">' + new Intl.NumberFormat('ru-RU').format(value) + '</div>'
+                    + '<div class="bar-label">' + label.slice(2) + '</div>'
+                    + '</div>';
+            }).join('');
+        }
+
+        function renderTopServices(items) {
+            const root = document.getElementById('topServicesList');
+            if (!root) return;
+            if (!items.length) {
+                root.innerHTML = '<div class="empty">Пока нет записей по услугам</div>';
+                return;
+            }
+            root.innerHTML = items.map((item, idx) => (
+                '<div class="service-item">'
+                + '<span class="service-rank">' + (idx + 1) + '</span>'
+                + '<span class="service-name">' + (item.name || 'Не указано') + '</span>'
+                + '<span class="service-count">' + (item.count || 0) + '</span>'
+                + '</div>'
+            )).join('');
+        }
+
+        async function loadAnalytics() {
+            const response = await fetch(API_BASE + '/api/admin/analytics', { headers: authHeaders() });
+            const data = await response.json();
+            if (!response.ok || !data.ok) {
+                throw new Error(data.message || 'Ошибка загрузки аналитики');
+            }
+
+            const m = data.metrics || {};
+            document.getElementById('anTotalRevenue').textContent = fmtMoney(m.totalRevenue || 0);
+            document.getElementById('anPaidPayments').textContent = (m.paidPayments || 0) + ' оплат';
+            document.getElementById('anMonthRevenue').textContent = fmtMoney(m.monthRevenue || 0);
+            document.getElementById('anGrowth').textContent = 'Рост ' + (m.monthGrowthPct || 0) + '% к прошлому месяцу';
+            document.getElementById('anTotalClients').textContent = String(m.totalClients || 0);
+            document.getElementById('anNewClients30').textContent = 'Новых за 30 дней: ' + String(m.newClients30 || 0);
+            document.getElementById('anAccepted').textContent = String(m.acceptedLearners || 0);
+            document.getElementById('anWaitlist').textContent = 'Лист ожидания: ' + String(m.waitlistLearners || 0);
+
+            const series = data.revenueSeries || { labels: [], values: [] };
+            renderRevenueChart(series.labels || [], series.values || []);
+            renderTopServices(data.topServices || []);
+
+            renderTable('tblTopClients', [
+                { key: 'email', label: 'Email' },
+                { key: 'bookings', label: 'Записи' },
+                { key: 'enrollments', label: 'Обучение' },
+                { key: 'messages', label: 'Сообщения' },
+                { key: 'score', label: 'Индекс' },
+                { key: 'lastAtFmt', label: 'Последняя активность' }
+            ], (data.topClients || []).map((r) => ({ ...r, lastAtFmt: fmtDate(r.lastAt) })));
+        }
+
+        async function refreshAnalytics() {
+            try {
+                await loadAnalytics();
+                alert('Аналитика обновлена');
+            } catch (error) {
+                alert('Ошибка обновления аналитики: ' + error.message);
+            }
+        }
+
         async function loadParticipants() {
             const response = await fetch(API_BASE + '/api/admin/participants', { headers: authHeaders() });
             const data = await response.json();
@@ -379,7 +505,7 @@
         }
 
         async function loadAdminData() {
-            await Promise.all([loadParticipants(), loadContent(), loadMessages()]);
+            await Promise.all([loadParticipants(), loadContent(), loadMessages(), loadAnalytics()]);
         }
 
         function clearAdminSession() {

@@ -2,6 +2,7 @@ import os
 import re
 import secrets
 import sqlite3
+from collections import Counter, defaultdict
 from contextlib import closing
 from datetime import datetime, timedelta
 from email.message import EmailMessage
@@ -182,6 +183,17 @@ def parse_iso(dt_str: str):
         return datetime.fromisoformat(dt_str)
     except Exception:
         return None
+
+
+def month_start(dt: datetime) -> datetime:
+    return dt.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+
+def shift_month(dt: datetime, delta: int) -> datetime:
+    month = dt.month - 1 + delta
+    year = dt.year + month // 12
+    month = month % 12 + 1
+    return dt.replace(year=year, month=month, day=1)
 
 
 def validate_email(email: str) -> bool:
@@ -402,6 +414,195 @@ def admin_messages():
             """
         ).fetchall()
     return jsonify({"ok": True, "messages": [dict(r) for r in rows]})
+
+
+@app.route("/api/admin/analytics", methods=["GET"])
+def admin_analytics():
+    auth_error = require_admin_or_401()
+    if auth_error:
+        return auth_error
+
+    now = datetime.now()
+    this_month_start = month_start(now)
+    prev_month_start = shift_month(this_month_start, -1)
+    next_month_start = shift_month(this_month_start, 1)
+
+    with closing(get_conn()) as conn:
+        payments = conn.execute(
+            """
+            SELECT amount, status, currency, consumed, created_at
+            FROM payments
+            ORDER BY id DESC
+            """
+        ).fetchall()
+        bookings = conn.execute(
+            """
+            SELECT email, service, created_at
+            FROM bookings
+            ORDER BY id DESC
+            """
+        ).fetchall()
+        learners = conn.execute(
+            """
+            SELECT email, status, created_at
+            FROM training_enrollments
+            ORDER BY id DESC
+            """
+        ).fetchall()
+        messages = conn.execute(
+            """
+            SELECT from_email, sender_role, created_at
+            FROM client_messages
+            ORDER BY id DESC
+            """
+        ).fetchall()
+
+    paid_payments = []
+    for p in payments:
+        if p["status"] != "paid":
+            continue
+        created_at = parse_iso(p["created_at"])
+        if not created_at:
+            continue
+        paid_payments.append(
+            {
+                "amount": int(p["amount"] or 0),
+                "currency": p["currency"] or "KZT",
+                "consumed": int(p["consumed"] or 0),
+                "created_at": created_at,
+            }
+        )
+
+    total_revenue = sum(p["amount"] for p in paid_payments)
+    this_month_revenue = sum(
+        p["amount"]
+        for p in paid_payments
+        if this_month_start <= p["created_at"] < next_month_start
+    )
+    prev_month_revenue = sum(
+        p["amount"]
+        for p in paid_payments
+        if prev_month_start <= p["created_at"] < this_month_start
+    )
+    growth_pct = 0
+    if prev_month_revenue > 0:
+        growth_pct = round(((this_month_revenue - prev_month_revenue) / prev_month_revenue) * 100)
+
+    labels = []
+    values = []
+    for i in range(5, -1, -1):
+        ms = shift_month(this_month_start, -i)
+        me = shift_month(ms, 1)
+        labels.append(ms.strftime("%Y-%m"))
+        values.append(sum(p["amount"] for p in paid_payments if ms <= p["created_at"] < me))
+
+    services_counter = Counter()
+    for b in bookings:
+        service = (b["service"] or "Не указано").strip() or "Не указано"
+        services_counter[service] += 1
+
+    first_seen = {}
+    unique_clients = set()
+
+    def touch_client(email_value, when):
+        email = (email_value or "").strip().lower()
+        if not validate_email(email):
+            return
+        unique_clients.add(email)
+        if when:
+            old = first_seen.get(email)
+            if not old or when < old:
+                first_seen[email] = when
+
+    for b in bookings:
+        touch_client(b["email"], parse_iso(b["created_at"]))
+
+    for l in learners:
+        touch_client(l["email"], parse_iso(l["created_at"]))
+
+    for m in messages:
+        if (m["sender_role"] or "").strip() == "client":
+            touch_client(m["from_email"], parse_iso(m["created_at"]))
+
+    new_clients_30 = 0
+    threshold = now - timedelta(days=30)
+    for seen in first_seen.values():
+        if seen and seen >= threshold:
+            new_clients_30 += 1
+
+    activity = defaultdict(lambda: {"bookings": 0, "messages": 0, "enrollments": 0, "lastAt": None})
+
+    for b in bookings:
+        email = (b["email"] or "").strip().lower()
+        if not validate_email(email):
+            continue
+        activity[email]["bookings"] += 1
+        created = parse_iso(b["created_at"])
+        if created and (not activity[email]["lastAt"] or created > activity[email]["lastAt"]):
+            activity[email]["lastAt"] = created
+
+    for l in learners:
+        email = (l["email"] or "").strip().lower()
+        if not validate_email(email):
+            continue
+        activity[email]["enrollments"] += 1
+        created = parse_iso(l["created_at"])
+        if created and (not activity[email]["lastAt"] or created > activity[email]["lastAt"]):
+            activity[email]["lastAt"] = created
+
+    for m in messages:
+        if (m["sender_role"] or "").strip() != "client":
+            continue
+        email = (m["from_email"] or "").strip().lower()
+        if not validate_email(email):
+            continue
+        activity[email]["messages"] += 1
+        created = parse_iso(m["created_at"])
+        if created and (not activity[email]["lastAt"] or created > activity[email]["lastAt"]):
+            activity[email]["lastAt"] = created
+
+    top_clients = sorted(
+        [
+            {
+                "email": email,
+                "bookings": stats["bookings"],
+                "messages": stats["messages"],
+                "enrollments": stats["enrollments"],
+                "score": stats["bookings"] * 2 + stats["messages"] + stats["enrollments"] * 3,
+                "lastAt": stats["lastAt"].isoformat() if stats["lastAt"] else None,
+            }
+            for email, stats in activity.items()
+        ],
+        key=lambda x: (x["score"], x["lastAt"] or ""),
+        reverse=True,
+    )[:10]
+
+    accepted = sum(1 for l in learners if (l["status"] or "") == "accepted")
+    waitlist = sum(1 for l in learners if (l["status"] or "") == "waitlist")
+
+    return jsonify(
+        {
+            "ok": True,
+            "metrics": {
+                "totalRevenue": total_revenue,
+                "monthRevenue": this_month_revenue,
+                "previousMonthRevenue": prev_month_revenue,
+                "monthGrowthPct": growth_pct,
+                "paidPayments": len(paid_payments),
+                "bookingsTotal": len(bookings),
+                "acceptedLearners": accepted,
+                "waitlistLearners": waitlist,
+                "totalClients": len(unique_clients),
+                "newClients30": new_clients_30,
+            },
+            "revenueSeries": {"labels": labels, "values": values},
+            "topServices": [
+                {"name": name, "count": count}
+                for name, count in services_counter.most_common(6)
+            ],
+            "topClients": top_clients,
+        }
+    )
 
 
 @app.route("/api/admin/messages/send", methods=["POST"])
