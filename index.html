@@ -4,9 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Роза Оглы — Экстрасенс и Медиум</title>
+    <meta name="description" content="Роза Оглы — профессиональный экстрасенс и медиум. Таро, контакт с духами, энергетическое очищение, рейки, астрология. Запись онлайн. Увалиханова 58.">
+    <meta name="keywords" content="экстрасенс, медиум, таро, рейки, астрология, энергетическое очищение, гадание, духовная консультация">
+    <meta name="author" content="Роза Оглы">
+    <meta property="og:title" content="Роза Оглы — Экстрасенс &amp; Медиум">
+    <meta property="og:description" content="Таро, медиумство, рейки и энергетическое очищение. Более 15 лет практики. Запишитесь на сеанс онлайн.">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="ru_RU">
+    <meta name="theme-color" content="#05060F">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="styles_dark.css">
 </head>
 <body>
+
+    <!-- Прелоадер -->
+    <div class="preloader" id="preloader">
+        <div class="preloader-inner">
+            <div class="preloader-crystal">✦</div>
+            <div class="preloader-text">Роза Оглы</div>
+            <div class="preloader-bar"><div class="preloader-fill"></div></div>
+        </div>
+    </div>
 
     <!-- Переключатель темы -->
     <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Сменить тему">☀</button>
@@ -33,6 +51,9 @@
                 <span class="nav-card">II</span>
                 <span class="nav-candle"></span>
             </div>
+            <button class="nav-hamburger" id="navHamburger" onclick="toggleMobileMenu()" aria-label="Открыть меню">
+                <span></span><span></span><span></span>
+            </button>
             <button class="login-btn" onclick="openLoginModal()">Личный кабинет</button>
         </div>
     </nav>
@@ -580,6 +601,72 @@
         </div>
     </section>
 
+    <!-- FAQ -->
+    <section id="faq" class="faq">
+        <div class="container">
+            <span class="section-label">Частые вопросы</span>
+            <h2 class="section-title">FAQ</h2>
+            <p class="section-subtitle">Ответы на самые распространённые вопросы о сеансах и методах работы</p>
+
+            <div class="faq-list">
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Как проходит первый сеанс?</span>
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">Первый сеанс начинается с короткой беседы — я понимаю, с чем вы пришли, что вас беспокоит. Затем мы выбираем инструмент: карты Таро, медиумический контакт или энергетическую диагностику. Всё в вашем темпе, без давления. Сеанс длится 30–90 минут в зависимости от выбранной услуги.</div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Возможны ли сеансы онлайн?</span>
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">Да, большинство услуг доступны дистанционно: через видеозвонок (WhatsApp, Telegram), голосовой звонок или переписку. Энергетические практики и связь с тонким миром не ограничены расстоянием. Онлайн-сеанс ничем не уступает личной встрече.</div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Что нужно сделать перед сеансом?</span>
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">Специальной подготовки не требуется. Желательно прийти отдохнувшим, с открытым настроем. Можете заранее сформулировать главный вопрос или ситуацию, которая вас беспокоит — это помогает сделать сеанс более точным и результативным.</div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Конфиденциальна ли информация с сеанса?</span>
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">Абсолютно. Всё сказанное и увиденное на сеансе остаётся строго между нами. Я никогда не делюсь личными данными клиентов и не веду публичных записей. Конфиденциальность — это основа доверия и моей профессиональной этики.</div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Как быстро можно записаться?</span>
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">Обычно ближайшее свободное место есть в течение 1–3 дней. Срочные консультации возможны — напишите мне в Telegram или по email и мы договоримся об удобном времени. Подписчики плана «Мудрый» и «Мастер» получают приоритет в записи.</div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Принимаете ли вы оплату картой?</span>
+                        <span class="faq-icon">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">Да, принимаю все основные способы оплаты: банковская карта (Каспи, Visa, MasterCard), переводы на Kaspi Pay, наличные при личной встрече. Оплата подписки производится через защищённую форму на сайте.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Специальные предложения -->
     <section id="offers" class="offers">
         <div class="container">
@@ -846,6 +933,10 @@
             <a href="#" class="profile-link" onclick="logout()">→ Выйти</a>
         </div>
     </div>
+
+    <!-- Плавающие кнопки -->
+    <a href="https://t.me/rozaogly" class="fab-telegram" target="_blank" rel="noopener noreferrer" title="Написать в Telegram">✈</a>
+    <button class="fab-scroll-top" id="scrollTopBtn" onclick="scrollToTop()" title="Наверх" aria-label="Вернуться наверх">↑</button>
 
     <script src="script.js"></script>
 </body>

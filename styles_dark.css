@@ -983,7 +983,6 @@ h1, h2, h3 { font-family: 'Cinzel', serif; font-weight: 600; color: var(--t1); l
     .hero-altar { display: none; }
     .guest-reviews-layout { grid-template-columns: 1fr; }
     section { padding: 80px 0; }
-    .nav-links { display: none; }
     .navbar .container { padding: 14px 20px; }
     .booking-form { padding: 28px 22px; }
     .form-row { grid-template-columns: 1fr; }
@@ -992,8 +991,137 @@ h1, h2, h3 { font-family: 'Cinzel', serif; font-weight: 600; color: var(--t1); l
     .stats .container { grid-template-columns: repeat(2, 1fr); gap: 30px; }
     .theme-toggle { top: 76px; right: 14px; }
     .user-profile { top: 76px; right: 66px; }
+    /* Мобильное меню */
+    .nav-hamburger { display: flex; }
+    .nav-links {
+        position: fixed; top: 58px; left: 0; right: 0;
+        background: rgba(5,6,15,0.98);
+        backdrop-filter: blur(22px);
+        flex-direction: column;
+        padding: 16px 24px 24px;
+        gap: 4px;
+        border-bottom: 1px solid var(--br);
+        transform: translateY(-110%);
+        transition: transform 0.36s var(--ease);
+        z-index: 999;
+        display: flex;
+    }
+    .nav-links.mobile-open { transform: translateY(0); }
+    .nav-link { font-size: 15px; padding: 12px 0; border-bottom: 1px solid rgba(130,100,205,0.08); }
+    .nav-link::after { display: none; }
+    .fab-telegram { bottom: 88px; right: 16px; width: 46px; height: 46px; font-size: 18px; }
+    .fab-scroll-top { bottom: 32px; right: 16px; width: 46px; height: 46px; font-size: 16px; }
 }
 @media (max-width: 480px) {
     .hero-actions { flex-direction: column; align-items: center; }
     .btn-primary, .btn-secondary { width: 100%; max-width: 300px; text-align: center; }
 }
+
+/* ─── ГАМБУРГЕР ──────────────────────────────────── */
+.nav-hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none; border: none;
+    cursor: pointer; padding: 6px;
+    z-index: 1002;
+}
+.nav-hamburger span {
+    display: block; width: 24px; height: 2px;
+    background: var(--t1); border-radius: 2px;
+    transition: var(--tr);
+}
+.nav-hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+.nav-hamburger.open span:nth-child(2) { opacity: 0; }
+.nav-hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+/* ─── ПРЕЛОАДЕР ──────────────────────────────────── */
+.preloader {
+    position: fixed; inset: 0;
+    background: var(--bg);
+    z-index: 9999;
+    display: flex; align-items: center; justify-content: center;
+    transition: opacity 0.5s var(--ease), visibility 0.5s var(--ease);
+}
+.preloader.hidden { opacity: 0; visibility: hidden; }
+.preloader-inner { text-align: center; }
+.preloader-crystal {
+    font-size: 48px;
+    color: var(--gold);
+    display: block;
+    animation: preloaderSpin 2s linear infinite;
+    margin-bottom: 16px;
+    filter: drop-shadow(0 0 20px rgba(196,162,74,0.5));
+}
+.preloader-text {
+    font-family: 'Cinzel', serif;
+    font-size: 20px; letter-spacing: 4px;
+    background: linear-gradient(135deg, var(--t1), var(--gold-l));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 24px;
+}
+.preloader-bar {
+    width: 160px; height: 2px;
+    background: var(--br); border-radius: 2px;
+    margin: 0 auto; overflow: hidden;
+}
+.preloader-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--purple), var(--gold));
+    border-radius: 2px;
+    animation: preloaderBar 1.4s var(--ease) forwards;
+}
+@keyframes preloaderSpin {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.15); }
+    100% { transform: rotate(360deg) scale(1); }
+}
+@keyframes preloaderBar {
+    from { width: 0; }
+    to   { width: 100%; }
+}
+
+/* ─── ПЛАВАЮЩИЕ КНОПКИ ───────────────────────────── */
+.fab-telegram {
+    position: fixed; bottom: 90px; right: 24px;
+    width: 52px; height: 52px;
+    background: linear-gradient(135deg, #2AABEE, #229ED9);
+    color: #fff; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; text-decoration: none;
+    box-shadow: 0 4px 20px rgba(34,158,217,0.45);
+    z-index: 500; transition: var(--tr);
+}
+.fab-telegram:hover { transform: scale(1.12) translateY(-3px); box-shadow: 0 8px 30px rgba(34,158,217,0.6); }
+.fab-scroll-top {
+    position: fixed; bottom: 28px; right: 24px;
+    width: 52px; height: 52px;
+    background: var(--card2); border: 1px solid var(--br);
+    color: var(--gold); border-radius: 50%;
+    font-size: 20px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 500; opacity: 0; pointer-events: none;
+    transition: var(--tr); box-shadow: var(--shadow-sm);
+}
+.fab-scroll-top.visible { opacity: 1; pointer-events: all; }
+.fab-scroll-top:hover { border-color: var(--br-g); box-shadow: var(--glow-g); transform: translateY(-3px); }
+
+/* ─── FAQ ────────────────────────────────────────── */
+.faq { background: var(--bg2); }
+.faq-list { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+.faq-item {
+    background: var(--card); border: 1px solid var(--br);
+    border-radius: var(--r2); overflow: hidden; transition: border-color 0.3s var(--ease);
+}
+.faq-item.open { border-color: var(--br-h); }
+.faq-question {
+    padding: 22px 28px; display: flex; justify-content: space-between; align-items: center;
+    cursor: pointer; font-family: 'Cinzel', serif; font-size: 15px; color: var(--t1);
+    user-select: none; transition: background 0.2s;
+}
+.faq-question:hover { background: rgba(138,109,192,0.05); }
+.faq-icon { color: var(--gold); font-size: 22px; font-weight: 300; transition: transform 0.3s var(--ease); flex-shrink: 0; margin-left: 16px; }
+.faq-item.open .faq-icon { transform: rotate(45deg); }
+.faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s var(--ease); }
+.faq-answer-inner { padding: 0 28px 22px; font-size: 14.5px; color: var(--t2); line-height: 1.85; }

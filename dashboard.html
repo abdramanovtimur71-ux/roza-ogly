@@ -68,9 +68,14 @@
 
     <!-- Верхняя панель -->
     <header class="topbar">
-        <div>
-            <div class="topbar-title" id="topbarTitle">Обзор</div>
-            <div class="topbar-sub" id="topbarSub">Добро пожаловать в личный кабинет</div>
+        <div style="display:flex;align-items:center;gap:14px;">
+            <button class="dash-hamburger" onclick="document.getElementById('sidebar').classList.toggle('open')" aria-label="Меню">
+                <span></span><span></span><span></span>
+            </button>
+            <div>
+                <div class="topbar-title" id="topbarTitle">Обзор</div>
+                <div class="topbar-sub" id="topbarSub">Добро пожаловать в личный кабинет</div>
+            </div>
         </div>
         <div class="topbar-actions">
             <a href="index.html" class="topbar-back">← На сайт</a>

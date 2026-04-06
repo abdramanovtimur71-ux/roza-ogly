@@ -972,3 +972,70 @@ if (window.matchMedia) {
         }
     });
 }
+
+/* ============================================
+   МОБИЛЬНОЕ МЕНЮ
+   ============================================ */
+
+function toggleMobileMenu() {
+    const links = document.querySelector('.nav-links');
+    const btn = document.getElementById('navHamburger');
+    if (!links || !btn) return;
+    const isOpen = links.classList.toggle('mobile-open');
+    btn.classList.toggle('open', isOpen);
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+            const links = document.querySelector('.nav-links');
+            const btn = document.getElementById('navHamburger');
+            if (links) links.classList.remove('mobile-open');
+            if (btn) btn.classList.remove('open');
+            document.body.style.overflow = '';
+        });
+    });
+});
+
+/* ============================================
+   КНОПКА "НАВЕРХ"
+   ============================================ */
+
+function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+window.addEventListener('scroll', () => {
+    const btn = document.getElementById('scrollTopBtn');
+    if (btn) btn.classList.toggle('visible', window.scrollY > 400);
+});
+
+/* ============================================
+   FAQ АККОРДЕОН
+   ============================================ */
+
+function toggleFaq(questionEl) {
+    const item = questionEl.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(i => {
+        i.classList.remove('open');
+        i.querySelector('.faq-answer').style.maxHeight = null;
+    });
+    if (!isOpen) {
+        item.classList.add('open');
+        const inner = item.querySelector('.faq-answer-inner');
+        item.querySelector('.faq-answer').style.maxHeight = inner.scrollHeight + 'px';
+    }
+}
+
+/* ============================================
+   ПРЕЛОАДЕР
+   ============================================ */
+
+window.addEventListener('load', () => {
+    const preloader = document.getElementById('preloader');
+    if (preloader) {
+        setTimeout(() => preloader.classList.add('hidden'), 1400);
+    }
+});
