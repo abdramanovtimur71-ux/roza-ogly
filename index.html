@@ -69,11 +69,14 @@
                 <button class="btn-secondary" onclick="scrollToSection('#mediumship')">Узнать об услугах</button>
             </div>
         </div>
-        <div class="hero-altar" aria-hidden="true">
-            <div class="altar-card">XIII</div>
-            <div class="altar-card">II</div>
-            <div class="altar-candle left"><span class="flame"></span></div>
-            <div class="altar-candle right"><span class="flame"></span></div>
+        <div class="hero-tarot" aria-hidden="true">
+            <div class="tarot-card card-back"></div>
+            <div class="tarot-card card-mid">XIII</div>
+            <div class="tarot-card card-front">II</div>
+        </div>
+        <div class="hero-candles" aria-hidden="true">
+            <div class="hero-candle hero-candle-left"><span class="flame"></span></div>
+            <div class="hero-candle hero-candle-right"><span class="flame"></span></div>
         </div>
         <div class="scroll-indicator">
             <span>Прокрутите</span>
@@ -937,18 +940,6 @@
     <!-- Плавающие кнопки -->
     <a href="https://wa.me/87072867777" class="fab-whatsapp" target="_blank" rel="noopener noreferrer" title="Написать в WhatsApp">W</a>
     <button class="fab-scroll-top" id="scrollTopBtn" onclick="scrollToTop()" title="Наверх" aria-label="Вернуться наверх">↑</button>
-
-    <!-- AI техподдержка -->
-    <div class="support-widget" id="supportWidget">
-        <button class="support-toggle" id="supportToggle" onclick="toggleSupportWidget()">Техподдержка AI</button>
-        <div class="support-panel" id="supportPanel">
-            <h4>Техподдержка</h4>
-            <p>Задайте технический вопрос по сайту</p>
-            <textarea id="supportQuestion" rows="4" placeholder="Например: не проходит оплата или не открывается кабинет"></textarea>
-            <button class="submit-btn" type="button" onclick="askSupportAI()">Отправить</button>
-            <div id="supportAnswer" class="support-answer hidden"></div>
-        </div>
-    </div>
 
     <script src="script.js"></script>
 </body>
