@@ -1,0 +1,852 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Роза Оглы — Экстрасенс и Медиум</title>
+    <link rel="stylesheet" href="styles_dark.css">
+</head>
+<body>
+
+    <!-- Переключатель темы -->
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Сменить тему">☀</button>
+
+    <!-- Навигация -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <div class="logo" onclick="openAdminAccess()" title="Вход для администратора">
+                <span class="logo-text">Роза Оглы</span>
+                <span class="logo-subtitle">Экстрасенс · Медиум</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home" class="nav-link">Главная</a></li>
+                <li><a href="#about" class="nav-link">О мастере</a></li>
+                <li><a href="#mediumship" class="nav-link">Услуги</a></li>
+                <li><a href="#testimonials" class="nav-link">Отзывы</a></li>
+                <li><a href="#blog" class="nav-link">Блог</a></li>
+                <li><a href="#pricing" class="nav-link">Тарифы</a></li>
+                <li><a href="#contact" class="nav-link">Контакты</a></li>
+            </ul>
+            <div class="nav-oracle" aria-hidden="true">
+                <span class="nav-candle"></span>
+                <span class="nav-card">X</span>
+                <span class="nav-card">II</span>
+                <span class="nav-candle"></span>
+            </div>
+            <button class="login-btn" onclick="openLoginModal()">Личный кабинет</button>
+        </div>
+    </nav>
+
+    <!-- Герой -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <span class="hero-eyebrow">Доверьтесь высшим силам</span>
+            <h1 class="hero-title">Роза Оглы<br>Экстрасенс &amp; Медиум</h1>
+            <p class="hero-subtitle">Связь с незримым миром, исцеление энергии, раскрытие тайн судьбы — более 15 лет служения высшим силам</p>
+            <div class="hero-actions">
+                <button class="btn-primary" onclick="scrollToSection('#booking')">Записаться на сеанс</button>
+                <button class="btn-secondary" onclick="scrollToSection('#mediumship')">Узнать об услугах</button>
+            </div>
+        </div>
+        <div class="hero-altar" aria-hidden="true">
+            <div class="altar-card">XIII</div>
+            <div class="altar-card">II</div>
+            <div class="altar-candle left"><span class="flame"></span></div>
+            <div class="altar-candle right"><span class="flame"></span></div>
+        </div>
+        <div class="scroll-indicator">
+            <span>Прокрутите</span>
+            <div class="scroll-line"></div>
+        </div>
+    </section>
+
+    <!-- О мастере -->
+    <section id="about" class="about">
+        <div class="container">
+            <div class="about-layout">
+                <div class="about-text">
+                    <span class="section-label">О мастере</span>
+                    <h2>Роза Оглы — проводник между мирами</h2>
+                    <p>Более 15 лет я помогаю людям найти путь к себе, исцелиться от боли прошлого и обрести ясность в будущем. Мой дар — это не магия в понимании большинства. Это тонкое искусство чтения энергий и установления связи с высшими планами бытия.</p>
+                    <p>Каждый сеанс — это индивидуальное путешествие, в котором я служу лишь проводником, помогая вам услышать то, что давно знает ваша душа.</p>
+                    <div>
+                        <span class="about-tag">Таро</span>
+                        <span class="about-tag">Медиумство</span>
+                        <span class="about-tag">Рейки</span>
+                        <span class="about-tag">Астрология</span>
+                        <span class="about-tag">Энергетика</span>
+                    </div>
+                    <div class="about-stats">
+                        <div class="about-stat">
+                            <span class="about-stat-num">1800+</span>
+                            <p>Клиентов</p>
+                        </div>
+                        <div class="about-stat">
+                            <span class="about-stat-num">15</span>
+                            <p>Лет опыта</p>
+                        </div>
+                        <div class="about-stat">
+                            <span class="about-stat-num">99%</span>
+                            <p>Рекомендуют</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-card-stack">
+                    <div class="about-feat-card">
+                        <span class="feat-num">I</span>
+                        <div class="feat-body">
+                            <h4>Глубина и точность</h4>
+                            <p>Каждое чтение проводится с полной концентрацией и уважением к вашей истории.</p>
+                        </div>
+                    </div>
+                    <div class="about-feat-card">
+                        <span class="feat-num">II</span>
+                        <div class="feat-body">
+                            <h4>Конфиденциальность</h4>
+                            <p>Всё сказанное на сеансе остаётся между нами. Полная приватность гарантирована.</p>
+                        </div>
+                    </div>
+                    <div class="about-feat-card">
+                        <span class="feat-num">III</span>
+                        <div class="feat-body">
+                            <h4>Этика и честность</h4>
+                            <p>Я говорю правду даже тогда, когда это сложно — потому что вы заслуживаете её.</p>
+                        </div>
+                    </div>
+                    <div class="about-feat-card">
+                        <span class="feat-num">IV</span>
+                        <div class="feat-body">
+                            <h4>Поддержка после сеанса</h4>
+                            <p>Консультации доступны даже после завершения основной работы.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Статистика -->
+    <section class="stats">
+        <div class="container">
+            <div class="stat-item">
+                <span class="stat-number" data-target="1800">0</span>
+                <p>Довольных клиентов</p>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" data-target="4200">0</span>
+                <p>Проведённых сеансов</p>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" data-target="15">0</span>
+                <p>Лет практики</p>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" data-target="24">0</span>
+                <p>Поддержка 24/7</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Медиумические Услуги -->
+    <section id="mediumship" class="mediumship">
+        <div class="container">
+            <span class="section-label">Духовные практики</span>
+            <h2 class="section-title">Медиумические Услуги</h2>
+            <p class="section-subtitle">Духовное развитие и контакт с тонким миром</p>
+
+            <div class="mediumship-content">
+                <div class="mediumship-card slide-in">
+                    <span class="card-no">Услуга I</span>
+                    <div class="card-icon">🔮</div>
+                    <h3>Таро Чтение</h3>
+                    <p>Полное толкование карт Таро для понимания вашей судьбы, путей и возможностей развития.</p>
+                    <div class="card-features">
+                        <span class="feature">⏱ 30–60 мин</span>
+                        <span class="feature">◈ От 5 000 ₸</span>
+                    </div>
+                </div>
+
+                <div class="mediumship-card slide-in">
+                    <span class="card-no">Услуга II</span>
+                    <div class="card-icon">🕯</div>
+                    <h3>Контакт с Духами</h3>
+                    <p>Установление связи с близкими людьми, покинувшими этот мир. Получение жизненно важных посланий.</p>
+                    <div class="card-features">
+                        <span class="feature">⏱ 45–90 мин</span>
+                        <span class="feature">◈ От 10 000 ₸</span>
+                    </div>
+                </div>
+
+                <div class="mediumship-card slide-in">
+                    <span class="card-no">Услуга III</span>
+                    <div class="card-icon">✦</div>
+                    <h3>Энергетическое Очищение</h3>
+                    <p>Очистка энергетического поля от негативного воздействия, снятие порчи и сглаза. Восстановление гармонии.</p>
+                    <div class="card-features">
+                        <span class="feature">⏱ 60 мин</span>
+                        <span class="feature">◈ От 7 500 ₸</span>
+                    </div>
+                </div>
+
+                <div class="mediumship-card slide-in">
+                    <span class="card-no">Услуга IV</span>
+                    <div class="card-icon">☽</div>
+                    <h3>Астрологическая Консультация</h3>
+                    <p>Анализ натальной карты, предсказание благоприятных периодов и помощь в принятии ключевых решений.</p>
+                    <div class="card-features">
+                        <span class="feature">⏱ 60–90 мин</span>
+                        <span class="feature">◈ От 9 000 ₸</span>
+                    </div>
+                </div>
+
+                <div class="mediumship-card slide-in">
+                    <span class="card-no">Услуга V</span>
+                    <div class="card-icon">◈</div>
+                    <h3>Рейки Исцеление</h3>
+                    <p>Древняя техника энергетического исцеления для восстановления физического и психического здоровья.</p>
+                    <div class="card-features">
+                        <span class="feature">⏱ 45 мин</span>
+                        <span class="feature">◈ От 6 000 ₸</span>
+                    </div>
+                </div>
+
+                <div class="mediumship-card slide-in">
+                    <span class="card-no">Услуга VI</span>
+                    <div class="card-icon">⬡</div>
+                    <h3>Духовное Наставничество</h3>
+                    <p>Индивидуальная работа по развитию духовных способностей и внутреннему росту.</p>
+                    <div class="card-features">
+                        <span class="feature">⏱ 90 мин</span>
+                        <span class="feature">◈ От 12 500 ₸</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Запись на Сеанс -->
+    <section id="booking" class="booking">
+        <div class="container">
+            <span class="section-label">Первый шаг</span>
+            <h2 class="section-title">Запись на Сеанс</h2>
+            <p class="section-subtitle">Заполните форму и я свяжусь с вами для подтверждения</p>
+
+            <form class="booking-form" id="bookingFormElement">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Ваше имя</label>
+                        <input type="text" placeholder="Полное имя" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Телефон</label>
+                        <input type="tel" placeholder="+7 (000) 000-00-00" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" placeholder="ваш@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Тип услуги</label>
+                        <select required>
+                            <option value="">Выберите услугу</option>
+                            <option value="tarot">Таро Чтение</option>
+                            <option value="spirits">Контакт с Духами</option>
+                            <option value="cleaning">Энергетическое Очищение</option>
+                            <option value="astro">Астрологическая Консультация</option>
+                            <option value="reiki">Рейки Исцеление</option>
+                            <option value="coaching">Духовное Наставничество</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Желаемая дата</label>
+                        <input type="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Желаемое время</label>
+                        <input type="time" required>
+                    </div>
+                </div>
+                <div class="form-group full">
+                    <label>Опишите ситуацию (необязательно)</label>
+                    <textarea placeholder="Расскажите о том, что вас беспокоит..." rows="4"></textarea>
+                </div>
+                <button type="submit" class="submit-btn">Отправить заявку</button>
+            </form>
+
+            <div class="booking-info">
+                <div class="info-card">
+                    <span class="info-icon">✦</span>
+                    <h3>Конфиденциальность</h3>
+                    <p>Всё, что вы расскажете, останется строго между нами.</p>
+                </div>
+                <div class="info-card">
+                    <span class="info-icon">☽</span>
+                    <h3>Гибкий график</h3>
+                    <p>Выбирайте удобное время и формат — онлайн или лично.</p>
+                </div>
+                <div class="info-card">
+                    <span class="info-icon">◈</span>
+                    <h3>Поддержка</h3>
+                    <p>Консультации и ответы на вопросы доступны после сеанса.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Тарифы -->
+    <section id="pricing" class="pricing">
+        <div class="container">
+            <span class="section-label">Подписка</span>
+            <h2 class="section-title">Тарифные Планы</h2>
+            <p class="section-subtitle">Выберите план, который соответствует вашему пути</p>
+
+            <div class="pricing-grid">
+                <div class="pricing-card slide-in">
+                    <div class="plan-header">
+                        <h3 class="plan-name">Светлый</h3>
+                        <p class="plan-status">Для начинающих</p>
+                    </div>
+                    <div class="plan-price">
+                        <span class="price">2 995</span>
+                        <span class="currency">₸/мес</span>
+                    </div>
+                    <ul class="plan-features">
+                        <li class="feature-item">1 сеанс в месяц</li>
+                        <li class="feature-item">Консультация по email</li>
+                        <li class="feature-item">Доступ к медитациям</li>
+                        <li class="feature-item" style="opacity:0.38">Приоритетная поддержка</li>
+                        <li class="feature-item" style="opacity:0.38">Персональный наставник</li>
+                    </ul>
+                    <button class="plan-btn" onclick="openLoginModal()">Выбрать план</button>
+                </div>
+
+                <div class="pricing-card slide-in featured">
+                    <div class="plan-badge">ПОПУЛЯРНЫЙ</div>
+                    <div class="plan-header">
+                        <h3 class="plan-name">Мудрый</h3>
+                        <p class="plan-status">Рекомендуется</p>
+                    </div>
+                    <div class="plan-price">
+                        <span class="price">7 795</span>
+                        <span class="currency">₸/мес</span>
+                    </div>
+                    <ul class="plan-features">
+                        <li class="feature-item">4 сеанса в месяц</li>
+                        <li class="feature-item">Круглосуточная поддержка</li>
+                        <li class="feature-item">Все курсы и материалы</li>
+                        <li class="feature-item">Приоритетная запись</li>
+                        <li class="feature-item" style="opacity:0.38">Персональный наставник</li>
+                    </ul>
+                    <button class="plan-btn" onclick="openLoginModal()">Выбрать план</button>
+                </div>
+
+                <div class="pricing-card slide-in">
+                    <div class="plan-header">
+                        <h3 class="plan-name">Мастер</h3>
+                        <p class="plan-status">Полное погружение</p>
+                    </div>
+                    <div class="plan-price">
+                        <span class="price">14 995</span>
+                        <span class="currency">₸/мес</span>
+                    </div>
+                    <ul class="plan-features">
+                        <li class="feature-item">Неограниченные сеансы</li>
+                        <li class="feature-item">VIP поддержка 24/7</li>
+                        <li class="feature-item">Все курсы и материалы</li>
+                        <li class="feature-item">Персональный наставник</li>
+                        <li class="feature-item">30% скидка на доп. услуги</li>
+                    </ul>
+                    <button class="plan-btn" onclick="openLoginModal()">Выбрать план</button>
+                </div>
+            </div>
+
+            <div class="pricing-comparison">
+                <h3>Что входит во все планы</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-item">
+                        <span class="comp-icon">📚</span>
+                        <h4>Библиотека</h4>
+                        <p>Книги, статьи и видео о духовном развитии</p>
+                    </div>
+                    <div class="comparison-item">
+                        <span class="comp-icon">🧘</span>
+                        <h4>Медитации</h4>
+                        <p>Ежедневные практики для релаксации</p>
+                    </div>
+                    <div class="comparison-item">
+                        <span class="comp-icon">👥</span>
+                        <h4>Сообщество</h4>
+                        <p>Общение с единомышленниками</p>
+                    </div>
+                    <div class="comparison-item">
+                        <span class="comp-icon">🎓</span>
+                        <h4>Обучение</h4>
+                        <p>Курсы по развитию экстрасенсорных способностей</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Отзывы -->
+    <section id="testimonials" class="testimonials">
+        <div class="container">
+            <span class="section-label">Истории клиентов</span>
+            <h2 class="section-title">Отзывы и Истории</h2>
+            <p class="section-subtitle">Что говорят те, кто прошёл путь вместе со мной</p>
+
+            <div class="testimonials-slider">
+                <div class="testimonial-card fade-in">
+                    <div class="testimonial-stars">★★★★★</div>
+                    <p class="testimonial-text">«Роза помогла мне разобраться в моей жизни. После первого сеанса таро я получила ясность в принятии важного решения. Спасибо за профессионализм и теплоту.»</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">М</div>
+                        <div>
+                            <p class="author-name">Марина П.</p>
+                            <p class="author-service">Таро Чтение</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card fade-in">
+                    <div class="testimonial-stars">★★★★★</div>
+                    <p class="testimonial-text">«Контакт с моей бабушкой прошёл по-настоящему волшебно. Я чувствовала её присутствие. Роза обладает настоящим даром. Рекомендую всем.»</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">А</div>
+                        <div>
+                            <p class="author-name">Анна К.</p>
+                            <p class="author-service">Контакт с Духами</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card fade-in">
+                    <div class="testimonial-stars">★★★★★</div>
+                    <p class="testimonial-text">«После сеанса энергетического очищения я почувствовала себя совершенно обновлённой. Исчезли головные боли и депрессия. Благодарна Розе от всего сердца.»</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">О</div>
+                        <div>
+                            <p class="author-name">Ольга М.</p>
+                            <p class="author-service">Энергетическое Очищение</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card fade-in">
+                    <div class="testimonial-stars">★★★★★</div>
+                    <p class="testimonial-text">«За 2 месяца подписки “Мудрый” моя тревожность снизилась, появилась структура и уверенность. Очень сильная поддержка и бережный подход.»</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">Е</div>
+                        <div>
+                            <p class="author-name">Ержан Т.</p>
+                            <p class="author-service">Подписка “Мудрый”</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card fade-in">
+                    <div class="testimonial-stars">★★★★★</div>
+                    <p class="testimonial-text">«Я пришла в тяжёлый период, и уже после первой консультации получила конкретный план действий. Результат ощутим и в личной жизни, и в работе.»</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">Д</div>
+                        <div>
+                            <p class="author-name">Динара С.</p>
+                            <p class="author-service">Комплекс: Таро + Рейки</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Квалификация -->
+    <section id="credentials" class="credentials">
+        <div class="container">
+            <span class="section-label">Опыт и признание</span>
+            <h2 class="section-title">Квалификация</h2>
+            <p class="section-subtitle">Профессиональная подготовка и международное признание</p>
+
+            <div class="credentials-grid">
+                <div class="credential-card slide-in">
+                    <span class="credential-icon">✦</span>
+                    <h3>Мастер Таро</h3>
+                    <p>Сертифицирована Международным Союзом Таро-Мастеров</p>
+                    <span class="year">2020</span>
+                </div>
+                <div class="credential-card slide-in">
+                    <span class="credential-icon">☽</span>
+                    <h3>Экстрасенс I категории</h3>
+                    <p>Подтверждённые способности, 15+ лет практики</p>
+                    <span class="year">2015</span>
+                </div>
+                <div class="credential-card slide-in">
+                    <span class="credential-icon">◈</span>
+                    <h3>Специалист Рейки</h3>
+                    <p>Мастер энергетического исцеления — уровень III</p>
+                    <span class="year">2021</span>
+                </div>
+                <div class="credential-card slide-in">
+                    <span class="credential-icon">⬡</span>
+                    <h3>Профессиональный Астролог</h3>
+                    <p>Анализ натальных карт и долгосрочные прогнозы</p>
+                    <span class="year">2019</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Тест совместимости -->
+    <section id="compatibility" class="compatibility">
+        <div class="container">
+            <span class="section-label">Для вас</span>
+            <h2 class="section-title">Какая услуга вам подходит?</h2>
+            <p class="section-subtitle">Пройдите короткий тест и получите персональную рекомендацию</p>
+
+            <div class="compatibility-quiz">
+                <div class="quiz-question">
+                    <h3>Вопрос 1: Что вас больше всего беспокоит?</h3>
+                    <div class="quiz-options">
+                        <label class="quiz-option"><input type="radio" name="q1" value="decisions"> Принятие важных решений</label>
+                        <label class="quiz-option"><input type="radio" name="q1" value="loved"> Контакт с ушедшими близкими</label>
+                        <label class="quiz-option"><input type="radio" name="q1" value="health"> Здоровье и благополучие</label>
+                        <label class="quiz-option"><input type="radio" name="q1" value="future"> Будущее и судьба</label>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <h3>Вопрос 2: Как вы относитесь к духовной энергии?</h3>
+                    <div class="quiz-options">
+                        <label class="quiz-option"><input type="radio" name="q2" value="believe"> Полностью верю</label>
+                        <label class="quiz-option"><input type="radio" name="q2" value="skeptic"> Скептичен, но любопытен</label>
+                        <label class="quiz-option"><input type="radio" name="q2" value="experience"> Полагаюсь на опыт</label>
+                        <label class="quiz-option"><input type="radio" name="q2" value="explore"> Хочу исследовать</label>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <h3>Вопрос 3: Как часто хотите получать помощь?</h3>
+                    <div class="quiz-options">
+                        <label class="quiz-option"><input type="radio" name="q3" value="once"> Один раз для пробы</label>
+                        <label class="quiz-option"><input type="radio" name="q3" value="monthly"> Раз в месяц</label>
+                        <label class="quiz-option"><input type="radio" name="q3" value="regular"> Еженедельно</label>
+                        <label class="quiz-option"><input type="radio" name="q3" value="constant"> Постоянно (подписка)</label>
+                    </div>
+                </div>
+
+                <button type="button" class="submit-btn quiz-btn" onclick="runCompatibilityTest()">Узнать рекомендацию</button>
+            </div>
+
+            <div id="quizResult" class="quiz-result hidden">
+                <h3>Ваша рекомендация:</h3>
+                <div id="resultContent"></div>
+                <button class="btn-primary" onclick="scrollToSection('#booking')" style="margin-top:20px">Записаться на сеанс</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Блог -->
+    <section id="blog" class="blog">
+        <div class="container">
+            <span class="section-label">Знания</span>
+            <h2 class="section-title">Духовный Блог</h2>
+            <p class="section-subtitle">Статьи и практики для вашего духовного пути</p>
+
+            <div class="blog-grid">
+                <article class="blog-card slide-in">
+                    <div class="blog-date">6 апреля 2026</div>
+                    <h3>Как научиться читать ауру</h3>
+                    <p>Аура — энергетическое поле каждого человека. Узнайте, как развить способность его видеть и интерпретировать.</p>
+                    <a href="#" class="read-more">Читать далее →</a>
+                </article>
+
+                <article class="blog-card slide-in">
+                    <div class="blog-date">3 апреля 2026</div>
+                    <h3>Нумерология имени и даты рождения</h3>
+                    <p>Каждое число несёт в себе особый смысл. Узнайте, что говорит нумерология о вашей личности и судьбе.</p>
+                    <a href="#" class="read-more">Читать далее →</a>
+                </article>
+
+                <article class="blog-card slide-in">
+                    <div class="blog-date">1 апреля 2026</div>
+                    <h3>Луна и её влияние на нашу жизнь</h3>
+                    <p>Лунные фазы влияют на энергию и эмоции. Используйте лунный календарь в своей пользу.</p>
+                    <a href="#" class="read-more">Читать далее →</a>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- Специальные предложения -->
+    <section id="offers" class="offers">
+        <div class="container">
+            <span class="section-label">Ограниченные предложения</span>
+            <h2 class="section-title">Специальные Предложения</h2>
+
+            <div class="offers-banner">
+                <div class="offer-card featured-offer">
+                    <div class="offer-badge">ГОРЯЧЕЕ ПРЕДЛОЖЕНИЕ</div>
+                    <h3>Первый сеанс — скидка 50%</h3>
+                    <p>Для новых клиентов только эту неделю</p>
+                    <div class="offer-price">
+                        <span class="original">7 500 ₸</span>
+                        <span class="discount">3 750 ₸</span>
+                    </div>
+                    <button class="btn-primary" onclick="scrollToSection('#booking')">Записаться</button>
+                </div>
+
+                <div class="offer-card">
+                    <div class="offer-badge">КОМБО ПАКЕТ</div>
+                    <h3>Три сеанса подряд</h3>
+                    <p>Таро + Рейки + Консультация</p>
+                    <div class="offer-price">
+                        <span class="original">22 500 ₸</span>
+                        <span class="discount">17 500 ₸</span>
+                    </div>
+                    <button class="btn-secondary" onclick="scrollToSection('#booking')">Выбрать</button>
+                </div>
+
+                <div class="offer-card">
+                    <div class="offer-badge">ДЛЯ ПОДПИСЧИКОВ</div>
+                    <h3>+2 бесплатных сеанса</h3>
+                    <p>При оформлении годовой подписки</p>
+                    <div class="offer-price">
+                        <span class="original">74 940 ₸</span>
+                        <span class="discount">62 440 ₸</span>
+                    </div>
+                    <button class="btn-secondary" onclick="scrollToSection('#pricing')">Подписаться</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Отзывы гостей (внизу) -->
+    <section id="guest-reviews" class="guest-reviews">
+        <div class="container">
+            <span class="section-label">Гостевая книга</span>
+            <h2 class="section-title">Отзывы от гостей сайта</h2>
+            <p class="section-subtitle">Оставьте впечатление о консультации или о работе сайта</p>
+
+            <div class="guest-reviews-layout">
+                <form class="guest-review-form" id="guestReviewForm">
+                    <div class="form-group">
+                        <label>Ваше имя</label>
+                        <input type="text" id="guestName" placeholder="Например, Айгерим" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Оценка</label>
+                        <select id="guestRating" required>
+                            <option value="">Выберите оценку</option>
+                            <option value="5">★★★★★ — Отлично</option>
+                            <option value="4">★★★★☆ — Хорошо</option>
+                            <option value="3">★★★☆☆ — Нормально</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Отзыв</label>
+                        <textarea id="guestText" rows="4" placeholder="Поделитесь, что вам понравилось" required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Отправить отзыв</button>
+                </form>
+
+                <div class="guest-reviews-list" id="guestReviewsList"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Гадания -->
+    <section id="interactive" class="interactive">
+        <div class="container">
+            <span class="section-label">Онлайн практики</span>
+            <h2 class="section-title">Попробуйте Гадание</h2>
+            <p class="section-subtitle">Мини-практики для вдохновения и осмысления</p>
+
+            <div class="interactive-grid">
+                <div class="interactive-card slide-in">
+                    <h3>Карта Дня</h3>
+                    <p>Какая карта Таро встречает вас сегодня?</p>
+                    <button class="btn-primary" onclick="drawTarotCard()">Вытащить карту</button>
+                    <div id="cardResult" class="card-result hidden"></div>
+                </div>
+
+                <div class="interactive-card slide-in">
+                    <h3>Число Удачи</h3>
+                    <p>Откройте своё число удачи на сегодня</p>
+                    <button class="btn-primary" onclick="getLuckyNumber()">Узнать число</button>
+                    <div id="numberResult" class="number-result hidden"></div>
+                </div>
+
+                <div class="interactive-card slide-in">
+                    <h3>Совет Дня</h3>
+                    <p>Получите мудрое наставление на день</p>
+                    <button class="btn-primary" onclick="getDailyAdvice()">Получить совет</button>
+                    <div id="adviceResult" class="advice-result hidden"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Контакты -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <span class="section-label">Связаться</span>
+            <h2 class="section-title">Контакты</h2>
+            <p class="section-subtitle">Я отвечаю на все обращения в течение 24 часов</p>
+
+            <div class="contact-layout">
+                <div class="contact-form-wrap">
+                    <h3>Написать сообщение</h3>
+                    <form class="contact-form">
+                        <div class="form-group">
+                            <label>Имя</label>
+                            <input type="text" placeholder="Ваше имя" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" placeholder="ваш@email.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Сообщение</label>
+                            <textarea placeholder="Ваш вопрос или пожелание..." rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="submit-btn">Отправить</button>
+                    </form>
+                </div>
+
+                <div class="contact-details">
+                    <h3>Реквизиты</h3>
+                    <p>Рада любому вопросу — будь то запись на сеанс или просто желание узнать подробнее о работе.</p>
+                    <div class="info-item">
+                        <span class="info-icon">✉</span>
+                        <p>roza19.91@icloud.com</p>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon">☏</span>
+                        <p>+7 (999) 123-45-67</p>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon">⌖</span>
+                        <p>Увалиханова 58</p>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon">☽</span>
+                        <p>Приём по записи — пн-сб, 10:00–20:00</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Футер -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-brand">
+                <span class="logo-text" onclick="openAdminAccess()" title="Вход для администратора">Роза Оглы</span>
+                <p>Экстрасенс · Медиум · Духовный практик</p>
+            </div>
+            <p class="footer-copy">© 2026 Роза Оглы. Все права защищены.</p>
+            <div class="social-links">
+                <a href="https://www.instagram.com/reel/DVdmq37CunU/?igsh=MTMyYmowd3dxa3c0cA==" class="social-link" target="_blank" rel="noopener noreferrer">Instagram</a>
+                <a href="#" class="social-link">Telegram</a>
+                <a href="#" class="social-link">ВКонтакте</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Модальное окно входа -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeLoginModal()">×</button>
+            <div class="modal-header">
+                <h2>Вход в кабинет</h2>
+                <p>Введите свои данные для доступа</p>
+            </div>
+            <form class="login-form" id="loginFormElement">
+                <div class="form-group">
+                    <label>Email адрес</label>
+                    <input type="email" id="email" placeholder="ваш@email.com" required>
+                    <span class="form-error"></span>
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <div class="password-field">
+                        <input type="password" id="password" placeholder="Ваш пароль" required>
+                        <button type="button" class="show-password" onclick="togglePassword()">◉</button>
+                    </div>
+                    <span class="form-error"></span>
+                </div>
+                <div class="remember-forgot">
+                    <label class="checkbox">
+                        <input type="checkbox" id="rememberMe">
+                        <span>Запомнить меня</span>
+                    </label>
+                    <a href="#" class="forgot-password">Забыли пароль?</a>
+                </div>
+                <button type="submit" class="submit-btn login-submit">Войти</button>
+            </form>
+            <div class="modal-footer">
+                <p>Нет аккаунта? <a href="#" onclick="openRegistrationModal()">Зарегистрироваться</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Регистрация -->
+    <div id="registrationModal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeRegistrationModal()">×</button>
+            <div class="modal-header">
+                <h2>Создать аккаунт</h2>
+                <p>Присоединитесь к сообществу</p>
+            </div>
+            <form class="registration-form" id="registrationFormElement">
+                <div class="form-group">
+                    <label>Полное имя</label>
+                    <input type="text" id="name" placeholder="Ваше имя" required>
+                </div>
+                <div class="form-group">
+                    <label>Email адрес</label>
+                    <input type="email" id="reg-email" placeholder="ваш@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <div class="password-field">
+                        <input type="password" id="reg-password" placeholder="Не менее 8 символов" required>
+                        <button type="button" class="show-password" onclick="toggleRegistrationPassword()">◉</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Подтвердить пароль</label>
+                    <input type="password" id="confirm-password" placeholder="Повторите пароль" required>
+                </div>
+                <label class="checkbox" style="margin-bottom:20px">
+                    <input type="checkbox" id="agree" required>
+                    <span>Я принимаю <a href="#">условия использования</a></span>
+                </label>
+                <button type="submit" class="submit-btn">Создать аккаунт</button>
+            </form>
+            <div class="modal-footer">
+                <p>Уже есть аккаунт? <a href="#" onclick="openLoginModal()">Войти</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Профиль пользователя (дропдаун) -->
+    <div id="userProfile" class="user-profile hidden">
+        <div class="profile-avatar" id="profileAvatar" onclick="toggleProfileMenu(event)">A</div>
+        <div class="profile-menu">
+            <a href="dashboard.html" class="profile-link">◈ Мой кабинет</a>
+            <a href="dashboard.html#profile" class="profile-link">✦ Профиль</a>
+            <a href="dashboard.html#sessions" class="profile-link">☽ Мои сеансы</a>
+            <a href="dashboard.html#subscription" class="profile-link">⬡ Подписка</a>
+            <a href="dashboard.html#settings" class="profile-link">⚙ Настройки</a>
+            <hr>
+            <a href="#" class="profile-link" onclick="logout()">→ Выйти</a>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

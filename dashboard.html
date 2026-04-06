@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет — Роза Оглы</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+
+<!-- ─── БОКОВОЕ МЕНЮ ─────────────────────────────── -->
+<aside class="sidebar" id="sidebar">
+    <a href="index.html" class="sidebar-logo">
+        <span class="sidebar-logo-text">Роза Оглы</span>
+        <span class="sidebar-logo-sub">Экстрасенс · Медиум</span>
+    </a>
+
+    <div class="sidebar-user">
+        <div class="sidebar-avatar" id="sidebarAvatar">А</div>
+        <div>
+            <div class="sidebar-user-name" id="sidebarName">Анна</div>
+            <div class="sidebar-user-plan" id="sidebarPlan">— Тариф: Светлый —</div>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <div class="sidebar-section-label">Главное</div>
+        <a href="#" class="sidebar-link active" onclick="showPage('overview', this)">
+            <span class="sidebar-icon">⬡</span> Обзор
+        </a>
+        <a href="#" class="sidebar-link" onclick="showPage('profile', this)">
+            <span class="sidebar-icon">✦</span> Мой профиль
+        </a>
+
+        <div class="sidebar-section-label">Сеансы</div>
+        <a href="#" class="sidebar-link" onclick="showPage('sessions', this)">
+            <span class="sidebar-icon">☽</span> Мои сеансы
+            <span class="sidebar-badge">2</span>
+        </a>
+        <a href="#" class="sidebar-link" onclick="showPage('booking', this)">
+            <span class="sidebar-icon">◈</span> Новая запись
+        </a>
+
+        <div class="sidebar-section-label">Аккаунт</div>
+        <a href="#" class="sidebar-link" onclick="showPage('subscription', this)">
+            <span class="sidebar-icon">◇</span> Подписка
+        </a>
+        <a href="#" class="sidebar-link" onclick="showPage('divinations', this)">
+            <span class="sidebar-icon">✧</span> Гадания
+        </a>
+        <a href="#" class="sidebar-link" onclick="showPage('settings', this)">
+            <span class="sidebar-icon">⚙</span> Настройки
+        </a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <a href="index.html" class="sidebar-link">
+            <span class="sidebar-icon">←</span> На сайт
+        </a>
+        <a href="index.html" class="sidebar-link logout" id="dashLogoutBtn" onclick="dashLogout()">
+            <span class="sidebar-icon">→</span> Выйти
+        </a>
+    </div>
+</aside>
+
+<!-- ─── ОСНОВНАЯ ОБЛАСТЬ ─────────────────────────── -->
+<div class="main-area">
+
+    <!-- Верхняя панель -->
+    <header class="topbar">
+        <div>
+            <div class="topbar-title" id="topbarTitle">Обзор</div>
+            <div class="topbar-sub" id="topbarSub">Добро пожаловать в личный кабинет</div>
+        </div>
+        <div class="topbar-actions">
+            <a href="index.html" class="topbar-back">← На сайт</a>
+        </div>
+    </header>
+
+    <div class="content">
+
+        <!-- ─── СТРАНИЦА: ОБЗОР ──────────────────── -->
+        <div id="page-overview" class="page active">
+
+            <div class="dash-notify info">
+                <div class="dash-notify-icon">☽</div>
+                <div class="dash-notify-text">
+                    <h4>Ближайший сеанс через 3 дня</h4>
+                    <p>Таро Чтение — 10 апреля 2026, 14:00</p>
+                </div>
+            </div>
+
+            <div class="grid-4">
+                <div class="kpi-card">
+                    <div class="kpi-label">Всего сеансов</div>
+                    <div class="kpi-value purple">7</div>
+                    <div class="kpi-change">+2 этот месяц</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Тариф</div>
+                    <div class="kpi-value gold" id="overviewPlan">Светлый</div>
+                    <div class="kpi-change">Активен до 6.05.2026</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Осталось сеансов</div>
+                    <div class="kpi-value green">1</div>
+                    <div class="kpi-change">Из 1 по тарифу</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Дней подписки</div>
+                    <div class="kpi-value" style="color:var(--t1)">30</div>
+                    <div class="kpi-change">До 6 мая 2026</div>
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px">
+                <div class="card" style="margin-bottom:0">
+                    <div class="card-title">Предстоящие сеансы <span>Ближайшие</span></div>
+                    <div class="session-list">
+                        <div class="session-item">
+                            <div class="session-left">
+                                <div class="session-icon">🔮</div>
+                                <div>
+                                    <div class="session-name">Таро Чтение</div>
+                                    <div class="session-date">10 апр 2026 · 14:00</div>
+                                </div>
+                            </div>
+                            <span class="session-status status-upcoming">Предстоит</span>
+                        </div>
+                        <div class="session-item">
+                            <div class="session-left">
+                                <div class="session-icon">☽</div>
+                                <div>
+                                    <div class="session-name">Астро-консультация</div>
+                                    <div class="session-date">18 апр 2026 · 16:00</div>
+                                </div>
+                            </div>
+                            <span class="session-status status-upcoming">Предстоит</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-bottom:0">
+                    <div class="card-title">Ваша подписка <span>Активна</span></div>
+                    <h3 style="font-family:'Cinzel',serif;color:var(--gold-l);font-size:20px;margin-bottom:8px" id="overviewPlanCard">Тариф «Светлый»</h3>
+                    <p style="font-size:13px;color:var(--t3);margin-bottom:16px">Активен до 6 мая 2026</p>
+                    <div class="progress-bar" style="margin-bottom:8px">
+                        <div class="progress-fill purple" style="width:30%"></div>
+                    </div>
+                    <p style="font-size:12px;color:var(--t3);margin-bottom:20px">1 из 1 сеанса использован</p>
+                    <button class="btn btn-gold btn-sm" onclick="showPage('subscription', document.querySelector('[onclick*=subscription]'))">Улучшить тариф</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">История сеансов <span>Последние 3</span></div>
+                <div class="session-list">
+                    <div class="session-item">
+                        <div class="session-left">
+                            <div class="session-icon">◈</div>
+                            <div>
+                                <div class="session-name">Энергетическое Очищение</div>
+                                <div class="session-date">28 мар 2026 · 11:00</div>
+                            </div>
+                        </div>
+                        <span class="session-price">7 500 ₸</span>
+                        <span class="session-status status-done">Завершён</span>
+                    </div>
+                    <div class="session-item">
+                        <div class="session-left">
+                            <div class="session-icon">🔮</div>
+                            <div>
+                                <div class="session-name">Таро Чтение</div>
+                                <div class="session-date">15 мар 2026 · 15:00</div>
+                            </div>
+                        </div>
+                        <span class="session-price">5 000 ₸</span>
+                        <span class="session-status status-done">Завершён</span>
+                    </div>
+                    <div class="session-item">
+                        <div class="session-left">
+                            <div class="session-icon">✦</div>
+                            <div>
+                                <div class="session-name">Рейки Исцеление</div>
+                                <div class="session-date">3 мар 2026 · 13:00</div>
+                            </div>
+                        </div>
+                        <span class="session-price">6 000 ₸</span>
+                        <span class="session-status status-done">Завершён</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── СТРАНИЦА: ПРОФИЛЬ ─────────────────── -->
+        <div id="page-profile" class="page">
+            <span class="page-label">Личные данные</span>
+            <div class="page-header">
+                <h1>Мой профиль</h1>
+                <p>Управляйте своими личными данными и контактами</p>
+            </div>
+
+            <div class="profile-avatar-section">
+                <div class="profile-avatar-big" id="profileAvatarBig">А</div>
+                <div class="profile-avatar-info">
+                    <h4 id="profileDisplayName">Анна Петрова</h4>
+                    <p>Участник с апреля 2026 · Тариф: <span style="color:var(--gold)">Светлый</span></p>
+                    <button class="btn btn-outline btn-sm">Изменить фото</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Личная информация</div>
+                <form onsubmit="saveProfile(event)">
+                    <div class="profile-form-grid">
+                        <div class="form-group">
+                            <label>Имя</label>
+                            <input type="text" id="profileFirstName" placeholder="Ваше имя" value="Анна">
+                        </div>
+                        <div class="form-group">
+                            <label>Фамилия</label>
+                            <input type="text" id="profileLastName" placeholder="Ваша фамилия" value="Петрова">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="profileEmail" placeholder="ваш@email.com" value="anna@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Телефон</label>
+                            <input type="tel" id="profilePhone" placeholder="+7 (000) 000-00-00">
+                        </div>
+                        <div class="form-group">
+                            <label>Дата рождения</label>
+                            <input type="date" id="profileBirthdate">
+                        </div>
+                        <div class="form-group">
+                            <label>Город</label>
+                            <input type="text" id="profileCity" placeholder="Ваш город">
+                        </div>
+                        <div class="form-group full">
+                            <label>О себе (для точного прочтения)</label>
+                            <textarea id="profileAbout" rows="3" placeholder="Расскажите о себе, это поможет мастеру лучше понять ваш запрос..."></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- ─── СТРАНИЦА: СЕАНСЫ ─────────────────── -->
+        <div id="page-sessions" class="page">
+            <span class="page-label">История и расписание</span>
+            <div class="page-header">
+                <h1>Мои сеансы</h1>
+                <p>Ближайшие встречи и архив прошедших сеансов</p>
+            </div>
+
+            <div class="dash-notify warn">
+                <div class="dash-notify-icon">◈</div>
+                <div class="dash-notify-text">
+                    <h4>Предстоит 2 сеанса</h4>
+                    <p>Ближайший — 10 апреля 2026 в 14:00 (Таро Чтение)</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Предстоящие сеансы <span onclick="showPage('booking', document.querySelector('[onclick*=booking]'))" style="cursor:pointer;color:var(--purple-l)">+ Записаться</span></div>
+                <div class="session-list">
+                    <div class="session-item">
+                        <div class="session-left">
+                            <div class="session-icon">🔮</div>
+                            <div>
+                                <div class="session-name">Таро Чтение</div>
+                                <div class="session-date">10 апреля 2026 · 14:00 · Онлайн</div>
+                            </div>
+                        </div>
+                        <span class="session-price">5 000 ₸</span>
+                        <span class="session-status status-upcoming">Предстоит</span>
+                        <button class="btn btn-outline btn-sm">Перенести</button>
+                    </div>
+                    <div class="session-item">
+                        <div class="session-left">
+                            <div class="session-icon">☽</div>
+                            <div>
+                                <div class="session-name">Астро-консультация</div>
+                                <div class="session-date">18 апреля 2026 · 16:00 · Онлайн</div>
+                            </div>
+                        </div>
+                        <span class="session-price">9 000 ₸</span>
+                        <span class="session-status status-upcoming">Предстоит</span>
+                        <button class="btn btn-outline btn-sm">Перенести</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Прошедшие сеансы <span>Архив</span></div>
+                <div class="session-list">
+                    <div class="session-item">
+                        <div class="session-left">
+                            <div class="session-icon">◈</div>
+                            <div>
+                                <div class="session-name">Энергетическое Очищение</div>
+                                <div class="session-date">28 марта 2026 · 11:00 · Лично</div>
+                            </div>
+                        </div>
+                        <span class="session-price">7 500 ₸</span>
+                        <span class="session-status status-done">Завершён</span>
+                    </div>
+                    <div class="session-item">
+                        <div class="session-left">
+                            <div class="session-icon">🔮</div>
+                            <div>
+                                <div class="session-name">Таро Чтение</div>
+                                <div class="session-date">15 марта 2026 · 15:00 · Онлайн</div>
+                            </div>
+                        </div>
+                        <span class="session-price">5 000 ₸</span>
+                        <span class="session-status status-done">Завершён</span>
+                    </div>
+                    <div class="session-item">
+                        <div class="session-left">
+                            <div class="session-icon">✦</div>
+                            <div>
+                                <div class="session-name">Рейки Исцеление</div>
+                                <div class="session-date">3 марта 2026 · 13:00 · Лично</div>
+                            </div>
+                        </div>
+                        <span class="session-price">6 000 ₸</span>
+                        <span class="session-status status-done">Завершён</span>
+                    </div>
+                    <div class="session-item">
+                        <div class="session-left">
+                            <div class="session-icon">⬡</div>
+                            <div>
+                                <div class="session-name">Духовное Наставничество</div>
+                                <div class="session-date">14 февраля 2026 · 12:00</div>
+                            </div>
+                        </div>
+                        <span class="session-price" style="color:var(--t3);text-decoration:line-through">12 500 ₸</span>
+                        <span class="session-status status-cancelled">Отменён</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── СТРАНИЦА: ЗАПИСЬ ──────────────────── -->
+        <div id="page-booking" class="page">
+            <span class="page-label">Новый сеанс</span>
+            <div class="page-header">
+                <h1>Записаться на сеанс</h1>
+                <p>Заполните форму и мастер подтвердит запись в течение часа</p>
+            </div>
+            <div class="card" style="max-width:700px">
+                <div class="card-title">Форма записи</div>
+                <form onsubmit="submitBooking(event)">
+                    <div class="profile-form-grid">
+                        <div class="form-group">
+                            <label>Имя</label>
+                            <input type="text" id="bkName" placeholder="Ваше имя" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Телефон</label>
+                            <input type="tel" id="bkPhone" placeholder="+7 (000) 000-00-00" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="bkEmail" placeholder="ваш@email.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Тип услуги</label>
+                            <select id="bkService" required>
+                                <option value="">Выберите услугу</option>
+                                <option>Таро Чтение — от 5 000 ₸</option>
+                                <option>Контакт с Духами — от 10 000 ₸</option>
+                                <option>Энергетическое Очищение — от 7 500 ₸</option>
+                                <option>Астрологическая Консультация — от 9 000 ₸</option>
+                                <option>Рейки Исцеление — от 6 000 ₸</option>
+                                <option>Духовное Наставничество — от 12 500 ₸</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Дата</label>
+                            <input type="date" id="bkDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Время</label>
+                            <input type="time" id="bkTime" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Формат</label>
+                            <select id="bkFormat">
+                                <option>Онлайн (Zoom/Telegram)</option>
+                                <option>Лично (Увалиханова 58)</option>
+                                <option>Телефон</option>
+                            </select>
+                        </div>
+                        <div class="form-group full">
+                            <label>Описание ситуации (опционально)</label>
+                            <textarea id="bkNote" rows="4" placeholder="Расскажите о своём запросе..."></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Отправить заявку</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- ─── СТРАНИЦА: ПОДПИСКА ────────────────── -->
+        <div id="page-subscription" class="page">
+            <span class="page-label">Тарифный план</span>
+            <div class="page-header">
+                <h1>Подписка</h1>
+                <p>Управляйте своим тарифным планом и оплатами</p>
+            </div>
+
+            <div class="plan-current">
+                <div class="plan-header-row">
+                    <div class="plan-title-area">
+                        <h2 id="currentPlanName">Тариф «Светлый»</h2>
+                        <p>Активен до 6 мая 2026 · Автопродление включено</p>
+                    </div>
+                    <div class="plan-price-display">
+                        <div><span class="price" id="currentPlanPrice">2 995</span><span class="currency"> ₸/мес</span></div>
+                    </div>
+                </div>
+                <div class="plan-features-row">
+                    <span class="plan-feat-pill">1 сеанс / месяц</span>
+                    <span class="plan-feat-pill">Email-консультации</span>
+                    <span class="plan-feat-pill">Доступ к медитациям</span>
+                </div>
+                <div class="progress-bar" style="margin-bottom:8px">
+                    <div class="progress-fill gold" style="width:100%"></div>
+                </div>
+                <p style="font-size:12px;color:var(--t3);margin-bottom:20px">1 из 1 сеанса использован в этом месяце</p>
+                <div class="plan-actions">
+                    <button class="btn btn-outline btn-sm">Отменить подписку</button>
+                    <button class="btn btn-gold btn-sm">Изменить платёжные данные</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Доступные тарифы</div>
+                <div class="plan-options">
+                    <div class="plan-option current">
+                        <h3>Светлый</h3>
+                        <div class="plan-option-price">2 995 <span style="font-size:14px;color:var(--t3)">₸/мес</span></div>
+                        <p>1 сеанс в месяц, базовая поддержка</p>
+                        <br>
+                        <button class="btn btn-outline btn-sm" disabled style="opacity:0.4;cursor:default">Текущий план</button>
+                    </div>
+                    <div class="plan-option">
+                        <h3>Мудрый</h3>
+                        <div class="plan-option-price">7 795 <span style="font-size:14px;color:var(--t3)">₸/мес</span></div>
+                        <p>4 сеанса, все курсы, приоритет</p>
+                        <br>
+                        <button class="btn btn-primary btn-sm" onclick="startPlanPayment('Мудрый', '7 795')">Выбрать</button>
+                    </div>
+                    <div class="plan-option">
+                        <h3>Мастер</h3>
+                        <div class="plan-option-price">14 995 <span style="font-size:14px;color:var(--t3)">₸/мес</span></div>
+                        <p>Без ограничений, VIP, наставник</p>
+                        <br>
+                        <button class="btn btn-gold btn-sm" onclick="startPlanPayment('Мастер', '14 995')">Выбрать</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">История платежей <span>Последние 3</span></div>
+                <div class="session-list">
+                    <div class="session-item">
+                        <div class="session-left">
+                            <div class="session-icon">✦</div>
+                            <div>
+                                <div class="session-name">Тариф «Светлый» — апрель 2026</div>
+                                <div class="session-date">6 апреля 2026</div>
+                            </div>
+                        </div>
+                        <span class="session-price">2 995 ₸</span>
+                        <span class="session-status status-done">Оплачен</span>
+                    </div>
+                    <div class="session-item">
+                        <div class="session-left">
+                            <div class="session-icon">✦</div>
+                            <div>
+                                <div class="session-name">Тариф «Светлый» — март 2026</div>
+                                <div class="session-date">6 марта 2026</div>
+                            </div>
+                        </div>
+                        <span class="session-price">2 995 ₸</span>
+                        <span class="session-status status-done">Оплачен</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── СТРАНИЦА: ГАДАНИЯ ─────────────────── -->
+        <div id="page-divinations" class="page">
+            <span class="page-label">Онлайн практики</span>
+            <div class="page-header">
+                <h1>Гадания</h1>
+                <p>Мини-практики для вдохновения и осмысления дня</p>
+            </div>
+            <div class="grid-3">
+                <div class="card" style="text-align:center;margin-bottom:0">
+                    <div style="font-size:36px;margin-bottom:14px;opacity:0.8">🔮</div>
+                    <h3 style="font-family:'Cinzel',serif;font-size:18px;margin-bottom:10px">Карта Дня</h3>
+                    <p style="font-size:14px;color:var(--t3);margin-bottom:20px">Какая карта Таро ждёт вас сегодня?</p>
+                    <button class="btn btn-primary btn-sm" onclick="dashDrawTarot()">Вытащить карту</button>
+                    <div id="dashCardResult" style="margin-top:16px;padding:14px;background:var(--bg3);border:1px solid var(--br-g);border-radius:10px;font-size:13.5px;color:var(--gold-l);display:none;text-align:left;line-height:1.6"></div>
+                </div>
+                <div class="card" style="text-align:center;margin-bottom:0">
+                    <div style="font-size:36px;margin-bottom:14px;opacity:0.8">☽</div>
+                    <h3 style="font-family:'Cinzel',serif;font-size:18px;margin-bottom:10px">Число Удачи</h3>
+                    <p style="font-size:14px;color:var(--t3);margin-bottom:20px">Ваше счастливое число на сегодня</p>
+                    <button class="btn btn-primary btn-sm" onclick="dashGetNumber()">Узнать число</button>
+                    <div id="dashNumberResult" style="margin-top:16px;padding:14px;background:var(--bg3);border:1px solid var(--br-g);border-radius:10px;font-size:13.5px;color:var(--gold-l);display:none;text-align:left"></div>
+                </div>
+                <div class="card" style="text-align:center;margin-bottom:0">
+                    <div style="font-size:36px;margin-bottom:14px;opacity:0.8">✦</div>
+                    <h3 style="font-family:'Cinzel',serif;font-size:18px;margin-bottom:10px">Совет Дня</h3>
+                    <p style="font-size:14px;color:var(--t3);margin-bottom:20px">Наставление от высших сил</p>
+                    <button class="btn btn-primary btn-sm" onclick="dashGetAdvice()">Получить совет</button>
+                    <div id="dashAdviceResult" style="margin-top:16px;padding:14px;background:var(--bg3);border:1px solid var(--br-g);border-radius:10px;font-size:13.5px;color:var(--gold-l);display:none;text-align:left;line-height:1.6"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── СТРАНИЦА: НАСТРОЙКИ ───────────────── -->
+        <div id="page-settings" class="page">
+            <span class="page-label">Конфигурация</span>
+            <div class="page-header">
+                <h1>Настройки</h1>
+                <p>Управляйте параметрами аккаунта и уведомлений</p>
+            </div>
+
+            <div class="card">
+                <div class="settings-section">
+                    <h3>Уведомления</h3>
+                    <div class="toggle-row">
+                        <div class="toggle-label">
+                            <h4>Напоминания о сеансах</h4>
+                            <p>За 24 часа и за 1 час до начала сеанса</p>
+                        </div>
+                        <div class="toggle on" id="toggle-sessions" onclick="toggleSetting(this)"></div>
+                    </div>
+                    <div class="toggle-row">
+                        <div class="toggle-label">
+                            <h4>Новости и статьи</h4>
+                            <p>Уведомления о новых публикациях в блоге</p>
+                        </div>
+                        <div class="toggle" id="toggle-news" onclick="toggleSetting(this)"></div>
+                    </div>
+                    <div class="toggle-row">
+                        <div class="toggle-label">
+                            <h4>Специальные предложения</h4>
+                            <p>Акции и скидки для подписчиков</p>
+                        </div>
+                        <div class="toggle on" id="toggle-offers" onclick="toggleSetting(this)"></div>
+                    </div>
+                    <div class="toggle-row">
+                        <div class="toggle-label">
+                            <h4>SMS-уведомления</h4>
+                            <p>Дополнительные уведомления по SMS</p>
+                        </div>
+                        <div class="toggle" id="toggle-sms" onclick="toggleSetting(this)"></div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>Тема интерфейса</h3>
+                    <div class="toggle-row">
+                        <div class="toggle-label">
+                            <h4>Тёмная тема</h4>
+                            <p>Мистическое оформление — рекомендуется</p>
+                        </div>
+                        <div class="toggle on" id="toggle-darktheme" onclick="toggleSetting(this)"></div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>Безопасность</h3>
+                    <h4 style="font-family:'Inter';font-size:14px;color:var(--t1);margin-bottom:16px;font-weight:500">Смена пароля</h4>
+                    <form onsubmit="changePassword(event)" style="max-width:480px">
+                        <div class="form-group">
+                            <label>Текущий пароль</label>
+                            <input type="password" placeholder="••••••••" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Новый пароль</label>
+                            <input type="password" placeholder="Не менее 8 символов" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Подтвердить пароль</label>
+                            <input type="password" placeholder="Повторите новый пароль" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm">Сменить пароль</button>
+                    </form>
+                </div>
+
+                <div class="settings-section">
+                    <h3>Аккаунт</h3>
+                    <div style="display:flex;gap:12px;flex-wrap:wrap">
+                        <button class="btn btn-outline btn-sm">Экспорт данных</button>
+                        <button class="btn btn-danger btn-sm" onclick="confirmDeleteAccount()">Удалить аккаунт</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /content -->
+</div><!-- /main-area -->
+
+<div class="payment-overlay" id="paymentOverlay">
+    <div class="payment-modal">
+        <button class="payment-close" onclick="closePaymentModal()">×</button>
+        <h3>Оплата подписки</h3>
+        <p id="paymentPlanInfo">Тариф и сумма</p>
+        <form id="paymentForm" onsubmit="confirmPlanPayment(event)">
+            <div class="form-group">
+                <label>Номер карты</label>
+                <input type="text" id="payCard" placeholder="0000 0000 0000 0000" minlength="16" maxlength="19" required>
+            </div>
+            <div class="profile-form-grid">
+                <div class="form-group">
+                    <label>Срок (MM/YY)</label>
+                    <input type="text" id="payExp" placeholder="08/28" required>
+                </div>
+                <div class="form-group">
+                    <label>CVV</label>
+                    <input type="password" id="payCvv" placeholder="123" minlength="3" maxlength="4" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Имя владельца</label>
+                <input type="text" id="payHolder" placeholder="AIGERIM K." required>
+            </div>
+            <button type="submit" class="btn btn-gold" style="width:100%">Оплатить и активировать</button>
+        </form>
+    </div>
+</div>
+
+<script>
+/* ─── DASHBOARD JS ──────────────────────────────── */
+
+const planPrices = {
+    'Светлый': '2 995',
+    'Мудрый': '7 795',
+    'Мастер': '14 995'
+};
+
+let pendingPlan = null;
+
+function getStorageArray(key) {
+    try {
+        return JSON.parse(localStorage.getItem(key) || '[]');
+    } catch {
+        return [];
+    }
+}
+
+function setStorageArray(key, value) {
+    localStorage.setItem(key, JSON.stringify(value));
+}
+
+function addAdminRecord(key, payload) {
+    const items = getStorageArray(key);
+    items.unshift({ id: Date.now(), createdAt: new Date().toISOString(), ...payload });
+    setStorageArray(key, items.slice(0, 300));
+}
+
+// Загрузка данных пользователя
+function loadUser() {
+    const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+    const name = userData.name || localStorage.getItem('userName') || 'Гость';
+    const plan = localStorage.getItem('userPlan') || 'Светлый';
+
+    const initial = name.charAt(0).toUpperCase();
+    document.getElementById('sidebarAvatar').textContent = initial;
+    document.getElementById('sidebarName').textContent = name;
+    document.getElementById('sidebarPlan').textContent = '— Тариф: ' + plan + ' —';
+    document.getElementById('profileAvatarBig').textContent = initial;
+    document.getElementById('profileDisplayName').textContent = name;
+    document.getElementById('overviewPlan').textContent = plan;
+    document.getElementById('overviewPlanCard').textContent = 'Тариф «' + plan + '»';
+    document.getElementById('currentPlanName').textContent = 'Тариф «' + plan + '»';
+    document.getElementById('currentPlanPrice').textContent = planPrices[plan] || '2 995';
+}
+
+// Навигация между страницами
+function showPage(pageId, linkEl) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+
+    const page = document.getElementById('page-' + pageId);
+    if (page) page.classList.add('active');
+    if (linkEl) linkEl.classList.add('active');
+
+    const titles = {
+        overview: ['Обзор', 'Сводная информация по вашему кабинету'],
+        profile: ['Мой профиль', 'Личные данные и контакты'],
+        sessions: ['Мои сеансы', 'Предстоящие встречи и история'],
+        booking: ['Новая запись', 'Запишитесь на следующий сеанс'],
+        subscription: ['Подписка', 'Тарифный план и платежи'],
+        divinations: ['Гадания', 'Онлайн практики для вдохновения'],
+        settings: ['Настройки', 'Параметры аккаунта и уведомлений']
+    };
+    if (titles[pageId]) {
+        document.getElementById('topbarTitle').textContent = titles[pageId][0];
+        document.getElementById('topbarSub').textContent = titles[pageId][1];
+    }
+    window.scrollTo(0, 0);
+}
+
+// Токглы настроек
+function toggleSetting(el) {
+    el.classList.toggle('on');
+}
+
+// Сохранение профиля
+function saveProfile(e) {
+    e.preventDefault();
+    const first = document.getElementById('profileFirstName').value;
+    const last = document.getElementById('profileLastName').value;
+    const fullName = first + (last ? ' ' + last : '');
+    localStorage.setItem('userName', fullName);
+    const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+    userData.name = fullName;
+    userData.email = document.getElementById('profileEmail').value;
+    userData.phone = document.getElementById('profilePhone').value;
+    userData.birthdate = document.getElementById('profileBirthdate').value;
+    userData.city = document.getElementById('profileCity').value;
+    userData.about = document.getElementById('profileAbout').value;
+    localStorage.setItem('userData', JSON.stringify(userData));
+    loadUser();
+    showNotify('Профиль успешно сохранён', 'success');
+}
+
+// Отправка записи
+function submitBooking(e) {
+    e.preventDefault();
+    const name = document.getElementById('bkName').value;
+    const email = document.getElementById('bkEmail').value;
+    const service = document.getElementById('bkService').value;
+    const date = document.getElementById('bkDate').value;
+    const time = document.getElementById('bkTime').value;
+    const format = document.getElementById('bkFormat').value;
+
+    addAdminRecord('bookings', {
+        name,
+        email,
+        service,
+        date,
+        time,
+        format,
+        source: 'dashboard-booking'
+    });
+
+    showNotify('Заявка отправлена! Мастер свяжется с вами в течение часа.', 'success');
+    e.target.reset();
+}
+
+// Смена пароля
+function changePassword(e) {
+    e.preventDefault();
+    showNotify('Пароль успешно изменён', 'success');
+    e.target.reset();
+}
+
+function startPlanPayment(name, price) {
+    pendingPlan = { name, price };
+    document.getElementById('paymentPlanInfo').textContent = 'Тариф «' + name + '» · ' + price + ' ₸/мес';
+    document.getElementById('paymentOverlay').classList.add('active');
+}
+
+function closePaymentModal() {
+    document.getElementById('paymentOverlay').classList.remove('active');
+    document.getElementById('paymentForm').reset();
+    pendingPlan = null;
+}
+
+function confirmPlanPayment(e) {
+    e.preventDefault();
+    if (!pendingPlan) {
+        showNotify('План не выбран', 'error');
+        return;
+    }
+
+    const card = document.getElementById('payCard').value.replace(/\s+/g, '');
+    const exp = document.getElementById('payExp').value.trim();
+    const cvv = document.getElementById('payCvv').value.trim();
+    const holder = document.getElementById('payHolder').value.trim();
+
+    if (card.length < 16 || !/^\d+$/.test(card)) {
+        showNotify('Проверьте номер карты', 'error');
+        return;
+    }
+    if (!/^\d{2}\/\d{2}$/.test(exp)) {
+        showNotify('Срок карты должен быть в формате MM/YY', 'error');
+        return;
+    }
+    if (!/^\d{3,4}$/.test(cvv) || !holder) {
+        showNotify('Проверьте CVV и имя владельца', 'error');
+        return;
+    }
+
+    localStorage.setItem('userPlan', pendingPlan.name);
+    loadUser();
+
+    addAdminRecord('subscriptions', {
+        plan: pendingPlan.name,
+        amount: pendingPlan.price,
+        currency: 'KZT',
+        customerName: localStorage.getItem('userName') || 'Неизвестно',
+        customerEmail: (JSON.parse(localStorage.getItem('userData') || '{}').email) || localStorage.getItem('userEmail') || 'Неизвестно',
+        maskedCard: '**** **** **** ' + card.slice(-4),
+        holder,
+        status: 'paid',
+        source: 'dashboard-payment'
+    });
+
+    addAdminRecord('payments', {
+        purpose: 'subscription',
+        plan: pendingPlan.name,
+        amount: pendingPlan.price + ' ₸',
+        status: 'paid'
+    });
+
+    showNotify('Оплата прошла успешно. Тариф активирован!', 'success');
+    closePaymentModal();
+}
+
+// Подтверждение удаления аккаунта
+function confirmDeleteAccount() {
+    if (confirm('Вы уверены? Все данные будут удалены без возможности восстановления.')) {
+        localStorage.clear();
+        window.location.href = 'index.html';
+    }
+}
+
+// Выход
+function dashLogout() {
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userName');
+    window.location.href = 'index.html';
+}
+
+// Гадания на дашборде
+const tarotCards = [
+    { name: 'Маг', meaning: 'Время действовать. Ваши способности и воля — ваши лучшие инструменты сегодня.' },
+    { name: 'Жрица', meaning: 'Прислушайтесь к своей интуиции. Ответы уже внутри вас, нужно лишь тишина.' },
+    { name: 'Звезда', meaning: 'Надежда и обновление. После долгой ночи всегда приходит свет.' },
+    { name: 'Луна', meaning: 'Мир иллюзий и скрытых страхов. Будьте внимательны к тому, что видите.' },
+    { name: 'Солнце', meaning: 'Радость, успех и ясность. Сегодня благоприятный день для всех начинаний.' },
+    { name: 'Смерть', meaning: 'Трансформация и перемены. Старое уходит, освобождая место новому.' },
+    { name: 'Сила', meaning: 'Внутренняя мощь и терпение. Действуйте с мягкостью, но уверенностью.' },
+    { name: 'Отшельник', meaning: 'Время для уединения и глубокого размышления. Ответ найдёте в тишине.' },
+    { name: 'Колесо Фортуны', meaning: 'Удача поворачивается в вашу сторону. Обратите внимание на знаки судьбы.' },
+    { name: 'Башня', meaning: 'Неожиданные перемены разрушат старое. Это путь к свободе и обновлению.' }
+];
+const advices = [
+    'Сегодня — день для благодарности. Найдите три вещи, за которые вы искренне благодарны.',
+    'Освободитесь от того, что вас тяготит. Это могут быть мысли, вещи или отношения.',
+    'Уделите время медитации. Даже 10 минут тишины способны изменить весь день.',
+    'Позвольте себе ошибаться. Каждая ошибка — это урок, а не приговор.',
+    'Посмотрите на ситуацию глазами стороннего наблюдателя. Что бы вы сказали другу?',
+    'Ваша интуиция сегодня особенно сильна. Доверьтесь первому ощущению.',
+    'Один маленький шаг лучше, чем бесконечные размышления. Начните сейчас.',
+    'Любовь начинается с принятия себя. Будьте к себе так же добры, как к близким.'
+];
+
+function dashDrawTarot() {
+    const card = tarotCards[Math.floor(Math.random() * tarotCards.length)];
+    const el = document.getElementById('dashCardResult');
+    el.innerHTML = '<strong style="color:var(--purple-l);display:block;margin-bottom:6px">✦ ' + card.name + '</strong>' + card.meaning;
+    el.style.display = 'block';
+}
+function dashGetNumber() {
+    const num = Math.floor(Math.random() * 9) + 1;
+    const msgs = ['символизирует новые начинания','несёт энергию баланса и гармонии','указывает на творческий потенциал','означает стабильность и надёжность','говорит о переменах и свободе','несёт вибрацию любви и заботы','символизирует мудрость и духовный поиск','означает изобилие и достижение целей','указывает на завершение цикла'];
+    const el = document.getElementById('dashNumberResult');
+    el.innerHTML = '<strong style="font-family:Cinzel,serif;font-size:24px;color:var(--gold-l);display:block;margin-bottom:6px">' + num + '</strong>' + 'Это число ' + msgs[num-1] + '.';
+    el.style.display = 'block';
+}
+function dashGetAdvice() {
+    const el = document.getElementById('dashAdviceResult');
+    el.innerHTML = '« ' + advices[Math.floor(Math.random() * advices.length)] + ' »';
+    el.style.display = 'block';
+}
+
+// Уведомление
+function showNotify(msg, type) {
+    const n = document.createElement('div');
+    n.style.cssText = 'position:fixed;bottom:24px;right:24px;padding:14px 22px;border-radius:10px;font-size:13.5px;z-index:9999;animation:slideInR .3s ease;font-family:Inter,sans-serif;max-width:340px;box-shadow:0 8px 32px rgba(0,0,0,.5)';
+    n.style.background = type === 'success' ? 'rgba(90,191,138,.12)' : 'rgba(208,96,96,.12)';
+    n.style.border = type === 'success' ? '1px solid rgba(90,191,138,.3)' : '1px solid rgba(208,96,96,.3)';
+    n.style.color = type === 'success' ? '#5ABF8A' : '#D06060';
+    n.textContent = msg;
+    document.body.appendChild(n);
+    const style = document.createElement('style');
+    style.textContent = '@keyframes slideInR{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}';
+    document.head.appendChild(style);
+    setTimeout(() => n.remove(), 4000);
+}
+
+// Проверка авторизации
+function checkAuth() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    if (!isLoggedIn) {
+        window.location.href = 'index.html';
+    }
+}
+
+// Инициализация
+window.addEventListener('DOMContentLoaded', () => {
+    checkAuth();
+    loadUser();
+
+    // Хэш-навигация (#profile, #sessions и т.д.)
+    const hash = window.location.hash.replace('#', '');
+    if (hash && document.getElementById('page-' + hash)) {
+        const link = document.querySelector('[onclick*="' + hash + '"]');
+        showPage(hash, link);
+    }
+});
+</script>
+</body>
+</html>
