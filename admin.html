@@ -11,7 +11,7 @@
         <header class="top">
             <div>
                 <h1>Админ кабинет</h1>
-                <div class="sub">Контроль регистраций, записей, оплат и подписок</div>
+                <div class="sub">Спецвход: управление сайтом, публикациями, участниками и сообщениями</div>
             </div>
             <div style="display:flex;gap:8px;flex-wrap:wrap">
                 <a class="btn" href="index.html">На сайт</a>
@@ -20,63 +20,130 @@
         </header>
 
         <section class="kpis">
-            <article class="kpi"><div class="label">Регистрации</div><div class="val" id="kpiRegs">0</div></article>
-            <article class="kpi"><div class="label">Записи на сеанс</div><div class="val" id="kpiBookings">0</div></article>
-            <article class="kpi"><div class="label">Покупки подписки</div><div class="val" id="kpiSubs">0</div></article>
-            <article class="kpi"><div class="label">Платежи</div><div class="val" id="kpiPays">0</div></article>
-            <article class="kpi"><div class="label">Гостевые отзывы</div><div class="val" id="kpiGuest">0</div></article>
+            <article class="kpi"><div class="label">Участники обучения</div><div class="val" id="kpiLearners">0</div></article>
+            <article class="kpi"><div class="label">Лист ожидания</div><div class="val" id="kpiWaitlist">0</div></article>
+            <article class="kpi"><div class="label">Записи на прием</div><div class="val" id="kpiBookings">0</div></article>
+            <article class="kpi"><div class="label">Публикации</div><div class="val" id="kpiContent">0</div></article>
+            <article class="kpi"><div class="label">Сообщения</div><div class="val" id="kpiMessages">0</div></article>
         </section>
 
         <section class="panel">
-            <h2>Кто прошел регистрацию</h2>
-            <div id="tblRegistrations" class="table-wrap"></div>
+            <h2>Добавить новую публикацию</h2>
+            <form class="admin-form" id="contentForm" onsubmit="createContent(event)">
+                <div class="form-grid">
+                    <div>
+                        <label>Тип</label>
+                        <select id="contentKind" required>
+                            <option value="story">История</option>
+                            <option value="doc">Документация</option>
+                            <option value="photo">Фото</option>
+                            <option value="video">Видео</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Заголовок</label>
+                        <input id="contentTitle" type="text" placeholder="Название публикации" required>
+                    </div>
+                </div>
+                <label>Описание</label>
+                <textarea id="contentBody" rows="4" placeholder="Текст истории, документации или описания"></textarea>
+                <label>Ссылка на медиа (для фото/видео/документа)</label>
+                <input id="contentMediaUrl" type="url" placeholder="https://...">
+                <button class="btn btn-main" type="submit">Добавить публикацию</button>
+            </form>
         </section>
 
         <section class="panel">
-            <h2>Кто записался на сеанс</h2>
-            <div id="tblBookings" class="table-wrap"></div>
+            <h2>Публикации на сайте</h2>
+            <div id="tblContent" class="table-wrap"></div>
         </section>
 
         <section class="panel">
-            <h2>Кто купил подписку</h2>
-            <div id="tblSubs" class="table-wrap"></div>
+            <h2>Участники и записи</h2>
+            <div class="double-grid">
+                <div>
+                    <h3>Участники обучения</h3>
+                    <div id="tblLearners" class="table-wrap"></div>
+                </div>
+                <div>
+                    <h3>Записи на прием</h3>
+                    <div id="tblBookings" class="table-wrap"></div>
+                </div>
+            </div>
         </section>
 
         <section class="panel">
-            <h2>Платежи</h2>
-            <div id="tblPays" class="table-wrap"></div>
+            <h2>Отправить сообщение клиенту</h2>
+            <form class="admin-form" id="messageForm" onsubmit="sendMessage(event)">
+                <div class="form-grid">
+                    <div>
+                        <label>Email клиента</label>
+                        <input id="msgTo" type="email" placeholder="client@email.com" required>
+                    </div>
+                    <div>
+                        <label>Тема</label>
+                        <input id="msgSubject" type="text" placeholder="Тема сообщения">
+                    </div>
+                </div>
+                <label>Текст</label>
+                <textarea id="msgText" rows="4" placeholder="Сообщение клиенту" required></textarea>
+                <button class="btn btn-main" type="submit">Отправить клиенту</button>
+            </form>
         </section>
 
         <section class="panel">
-            <h2>Отзывы гостей</h2>
-            <div id="tblGuest" class="table-wrap"></div>
+            <h2>Диалог с клиентами</h2>
+            <div id="tblMessages" class="table-wrap"></div>
         </section>
     </div>
 
     <script>
-        const ADMIN_ACCESS_CODE = 'ROZA-ADMIN-2026';
+        const API_BASE = localStorage.getItem('apiBaseUrl') || 'http://127.0.0.1:5000';
+        const ADMIN_ACCESS_CODE = '0000';
 
-        function getStorageArray(key) {
-            try {
-                return JSON.parse(localStorage.getItem(key) || '[]');
-            } catch {
-                return [];
-            }
+        function getAdminToken() {
+            return localStorage.getItem('adminToken') || '';
         }
 
-        function checkAdmin() {
-            const isAdmin = localStorage.getItem('isAdminLoggedIn');
-            if (isAdmin === 'true') {
+        function authHeaders() {
+            return {
+                'Content-Type': 'application/json',
+                'X-Admin-Token': getAdminToken()
+            };
+        }
+
+        async function checkAdmin() {
+            let token = getAdminToken();
+            if (token) {
                 return true;
             }
-            const code = prompt('Введите код администратора');
+
+            const code = prompt('Введите пароль спецвхода');
             if (!code || code.trim() !== ADMIN_ACCESS_CODE) {
                 alert('Доступ запрещен');
                 window.location.href = 'index.html';
                 return false;
             }
-            localStorage.setItem('isAdminLoggedIn', 'true');
-            return true;
+
+            try {
+                const response = await fetch(API_BASE + '/api/admin/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: code.trim() })
+                });
+                const data = await response.json();
+                if (!response.ok || !data.ok) {
+                    alert(data.message || 'Ошибка спецвхода');
+                    window.location.href = 'index.html';
+                    return false;
+                }
+                localStorage.setItem('adminToken', data.token);
+                return true;
+            } catch {
+                alert('Сервер спецвхода недоступен');
+                window.location.href = 'index.html';
+                return false;
+            }
         }
 
         function renderTable(targetId, columns, rows) {
@@ -101,70 +168,135 @@
             return isNaN(d.getTime()) ? value : d.toLocaleString('ru-RU');
         }
 
-        function loadAdminData() {
-            const registrations = getStorageArray('registrations');
-            const bookings = getStorageArray('bookings');
-            const subs = getStorageArray('subscriptions');
-            const payments = getStorageArray('payments');
-            const guest = getStorageArray('guestReviews');
+        async function loadParticipants() {
+            const response = await fetch(API_BASE + '/api/admin/participants', { headers: authHeaders() });
+            const data = await response.json();
+            if (!response.ok || !data.ok) {
+                throw new Error(data.message || 'Ошибка загрузки участников');
+            }
 
-            document.getElementById('kpiRegs').textContent = registrations.length;
+            const learners = data.learners || [];
+            const bookings = data.bookings || [];
+            const accepted = learners.filter((x) => x.status === 'accepted').length;
+            const waitlist = learners.filter((x) => x.status === 'waitlist').length;
+
+            document.getElementById('kpiLearners').textContent = accepted;
+            document.getElementById('kpiWaitlist').textContent = waitlist;
             document.getElementById('kpiBookings').textContent = bookings.length;
-            document.getElementById('kpiSubs').textContent = subs.length;
-            document.getElementById('kpiPays').textContent = payments.length;
-            document.getElementById('kpiGuest').textContent = guest.length;
 
-            renderTable('tblRegistrations', [
+            renderTable('tblLearners', [
                 { key: 'name', label: 'Имя' },
                 { key: 'email', label: 'Email' },
-                { key: 'source', label: 'Источник' },
+                { key: 'phone', label: 'Телефон' },
+                { key: 'status', label: 'Статус' },
                 { key: 'createdAtFmt', label: 'Дата' }
-            ], registrations.map((r) => ({ ...r, createdAtFmt: fmtDate(r.createdAt) })));
+            ], learners.map((r) => ({ ...r, createdAtFmt: fmtDate(r.created_at) })));
 
             renderTable('tblBookings', [
                 { key: 'name', label: 'Имя' },
                 { key: 'email', label: 'Email' },
-                { key: 'service', label: 'Услуга' },
-                { key: 'date', label: 'Дата сеанса' },
-                { key: 'time', label: 'Время' },
-                { key: 'source', label: 'Источник' },
-                { key: 'createdAtFmt', label: 'Создано' }
-            ], bookings.map((r) => ({ ...r, createdAtFmt: fmtDate(r.createdAt) })));
+                { key: 'phone', label: 'Телефон' },
+                { key: 'bookingAtFmt', label: 'Время приема' }
+            ], bookings.map((r) => ({ ...r, bookingAtFmt: fmtDate(r.booking_at) })));
+        }
 
-            renderTable('tblSubs', [
-                { key: 'customerName', label: 'Клиент' },
-                { key: 'customerEmail', label: 'Email' },
-                { key: 'plan', label: 'Тариф' },
-                { key: 'amount', label: 'Сумма' },
-                { key: 'currency', label: 'Валюта' },
-                { key: 'status', label: 'Статус' },
-                { key: 'createdAtFmt', label: 'Дата' }
-            ], subs.map((r) => ({ ...r, createdAtFmt: fmtDate(r.createdAt) })));
+        async function loadContent() {
+            const response = await fetch(API_BASE + '/api/admin/content', { headers: authHeaders() });
+            const data = await response.json();
+            if (!response.ok || !data.ok) {
+                throw new Error(data.message || 'Ошибка загрузки публикаций');
+            }
+            const items = data.items || [];
+            document.getElementById('kpiContent').textContent = items.length;
 
-            renderTable('tblPays', [
-                { key: 'purpose', label: 'Назначение' },
-                { key: 'plan', label: 'Тариф' },
-                { key: 'amount', label: 'Сумма' },
-                { key: 'status', label: 'Статус' },
+            renderTable('tblContent', [
+                { key: 'kind', label: 'Тип' },
+                { key: 'title', label: 'Заголовок' },
+                { key: 'body', label: 'Описание' },
+                { key: 'media_url', label: 'Ссылка' },
                 { key: 'createdAtFmt', label: 'Дата' }
-            ], payments.map((r) => ({ ...r, createdAtFmt: fmtDate(r.createdAt) })));
+            ], items.map((r) => ({ ...r, createdAtFmt: fmtDate(r.created_at) })));
+        }
 
-            renderTable('tblGuest', [
-                { key: 'name', label: 'Имя' },
-                { key: 'rating', label: 'Оценка' },
-                { key: 'text', label: 'Отзыв' },
+        async function loadMessages() {
+            const response = await fetch(API_BASE + '/api/admin/messages', { headers: authHeaders() });
+            const data = await response.json();
+            if (!response.ok || !data.ok) {
+                throw new Error(data.message || 'Ошибка загрузки сообщений');
+            }
+            const messages = data.messages || [];
+            document.getElementById('kpiMessages').textContent = messages.length;
+
+            renderTable('tblMessages', [
+                { key: 'sender_role', label: 'Отправитель' },
+                { key: 'from_email', label: 'От кого' },
+                { key: 'to_email', label: 'Кому' },
+                { key: 'subject', label: 'Тема' },
+                { key: 'text', label: 'Текст' },
                 { key: 'createdAtFmt', label: 'Дата' }
-            ], guest.map((r) => ({ ...r, createdAtFmt: fmtDate(r.createdAt) })));
+            ], messages.map((r) => ({ ...r, createdAtFmt: fmtDate(r.created_at) })));
+        }
+
+        async function createContent(e) {
+            e.preventDefault();
+            const kind = document.getElementById('contentKind').value;
+            const title = document.getElementById('contentTitle').value.trim();
+            const body = document.getElementById('contentBody').value.trim();
+            const mediaUrl = document.getElementById('contentMediaUrl').value.trim();
+
+            const response = await fetch(API_BASE + '/api/admin/content', {
+                method: 'POST',
+                headers: authHeaders(),
+                body: JSON.stringify({ kind, title, body, mediaUrl })
+            });
+            const data = await response.json();
+            if (!response.ok || !data.ok) {
+                alert(data.message || 'Не удалось добавить публикацию');
+                return;
+            }
+            e.target.reset();
+            await loadContent();
+            alert('Публикация добавлена');
+        }
+
+        async function sendMessage(e) {
+            e.preventDefault();
+            const toEmail = document.getElementById('msgTo').value.trim();
+            const subject = document.getElementById('msgSubject').value.trim();
+            const text = document.getElementById('msgText').value.trim();
+
+            const response = await fetch(API_BASE + '/api/admin/messages/send', {
+                method: 'POST',
+                headers: authHeaders(),
+                body: JSON.stringify({ toEmail, subject, text })
+            });
+            const data = await response.json();
+            if (!response.ok || !data.ok) {
+                alert(data.message || 'Не удалось отправить сообщение');
+                return;
+            }
+            e.target.reset();
+            await loadMessages();
+            alert('Сообщение отправлено');
+        }
+
+        async function loadAdminData() {
+            await Promise.all([loadParticipants(), loadContent(), loadMessages()]);
         }
 
         function clearAdminSession() {
             localStorage.removeItem('isAdminLoggedIn');
+            localStorage.removeItem('adminToken');
             window.location.href = 'index.html';
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            if (!checkAdmin()) return;
-            loadAdminData();
+        window.addEventListener('DOMContentLoaded', async () => {
+            if (!(await checkAdmin())) return;
+            try {
+                await loadAdminData();
+            } catch (error) {
+                alert('Ошибка загрузки админ данных: ' + error.message);
+            }
         });
     </script>
 </body>

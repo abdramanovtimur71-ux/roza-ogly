@@ -48,6 +48,9 @@
         <a href="#" class="sidebar-link" onclick="showPage('divinations', this)">
             <span class="sidebar-icon">✧</span> Гадания
         </a>
+        <a href="#" class="sidebar-link" onclick="showPage('messages', this)">
+            <span class="sidebar-icon">✉</span> Сообщения
+        </a>
         <a href="#" class="sidebar-link" onclick="showPage('settings', this)">
             <span class="sidebar-icon">⚙</span> Настройки
         </a>
@@ -502,6 +505,31 @@
             </div>
         </div>
 
+        <!-- ─── СТРАНИЦА: СООБЩЕНИЯ ──────────────── -->
+        <div id="page-messages" class="page">
+            <span class="page-label">Связь с админом</span>
+            <div class="page-header">
+                <h1>Сообщения</h1>
+                <p>Здесь вы видите ответы администрации и можете отправлять свои сообщения</p>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Переписка</div>
+                <div id="clientMessagesList" class="session-list"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Ответить администратору</div>
+                <form onsubmit="sendClientReply(event)">
+                    <div class="form-group">
+                        <label>Ваш ответ</label>
+                        <textarea id="clientReplyText" rows="4" placeholder="Напишите сообщение администратору..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-gold btn-sm">Отправить</button>
+                </form>
+            </div>
+        </div>
+
         <!-- ─── СТРАНИЦА: НАСТРОЙКИ ───────────────── -->
         <div id="page-settings" class="page">
             <span class="page-label">Конфигурация</span>
@@ -700,11 +728,15 @@ function showPage(pageId, linkEl) {
         booking: ['Новая запись', 'Запишитесь на прием'],
         subscription: ['Обучение', 'Оплата, лимит мест, лист ожидания'],
         divinations: ['Гадания', 'Онлайн практики для вдохновения'],
+        messages: ['Сообщения', 'Диалог клиента с администратором'],
         settings: ['Настройки', 'Параметры аккаунта и уведомлений']
     };
     if (titles[pageId]) {
         document.getElementById('topbarTitle').textContent = titles[pageId][0];
         document.getElementById('topbarSub').textContent = titles[pageId][1];
+    }
+    if (pageId === 'messages') {
+        loadClientMessages();
     }
     window.scrollTo(0, 0);
 }
@@ -814,7 +846,6 @@ async function confirmTrainingPayment(e) {
     const name = (localStorage.getItem('userName') || userData.name || holder || 'Ученик').trim();
     const email = (userData.email || localStorage.getItem('userEmail') || '').trim();
     const phone = (userData.phone || '').trim();
-    const paymentId = 'PAY-' + Date.now();
 
     if (!email) {
         showNotify('Для оплаты добавьте email в профиле', 'error');
@@ -822,10 +853,30 @@ async function confirmTrainingPayment(e) {
     }
 
     try {
+        const verifyResponse = await fetch(API_BASE + '/api/payments/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                amount: 75000,
+                currency: 'KZT',
+                card,
+                exp,
+                cvv,
+                holder
+            })
+        });
+        const verifyData = await verifyResponse.json();
+        if (!verifyResponse.ok || !verifyData.ok) {
+            showNotify(verifyData.message || 'Платеж не подтвержден', 'error');
+            return;
+        }
+
+        const paymentId = verifyData.paymentId;
+
         const response = await fetch(API_BASE + '/api/training/enroll', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, email, phone, paymentId, cardLast4: card.slice(-4) })
+            body: JSON.stringify({ name, email, phone, paymentId })
         });
         const data = await response.json();
         if (!response.ok) {
@@ -912,6 +963,87 @@ function dashGetAdvice() {
     const el = document.getElementById('dashAdviceResult');
     el.innerHTML = '« ' + advices[Math.floor(Math.random() * advices.length)] + ' »';
     el.style.display = 'block';
+}
+
+async function loadClientMessages() {
+    const root = document.getElementById('clientMessagesList');
+    if (!root) {
+        return;
+    }
+    const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+    const email = (userData.email || localStorage.getItem('userEmail') || '').trim().toLowerCase();
+    if (!email) {
+        root.innerHTML = '<div class="empty">Добавьте email в профиле, чтобы пользоваться сообщениями</div>';
+        return;
+    }
+
+    try {
+        const response = await fetch(API_BASE + '/api/messages/inbox?email=' + encodeURIComponent(email));
+        const data = await response.json();
+        if (!response.ok || !data.ok) {
+            root.innerHTML = '<div class="empty">Не удалось загрузить сообщения</div>';
+            return;
+        }
+        const messages = data.messages || [];
+        if (!messages.length) {
+            root.innerHTML = '<div class="empty">Пока нет сообщений</div>';
+            return;
+        }
+
+        root.innerHTML = messages.map((m) => {
+            const fromAdmin = m.sender_role === 'admin';
+            const label = fromAdmin ? 'Администратор' : 'Вы';
+            const date = new Date(m.created_at).toLocaleString('ru-RU');
+            const subj = m.subject ? ('<div style="font-size:12px;color:var(--t3);margin-top:4px">' + m.subject + '</div>') : '';
+            return '<div class="session-item">'
+                + '<div class="session-left">'
+                + '<div class="session-icon">' + (fromAdmin ? '✉' : '◈') + '</div>'
+                + '<div>'
+                + '<div class="session-name">' + label + '</div>'
+                + subj
+                + '<div class="session-date" style="max-width:680px">' + (m.text || '') + '</div>'
+                + '</div>'
+                + '</div>'
+                + '<span class="session-status ' + (fromAdmin ? 'status-upcoming' : 'status-done') + '">' + date + '</span>'
+                + '</div>';
+        }).join('');
+    } catch (error) {
+        root.innerHTML = '<div class="empty">Сервер недоступен</div>';
+    }
+}
+
+async function sendClientReply(e) {
+    e.preventDefault();
+    const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+    const email = (userData.email || localStorage.getItem('userEmail') || '').trim().toLowerCase();
+    const text = document.getElementById('clientReplyText').value.trim();
+
+    if (!email) {
+        showNotify('Добавьте email в профиле', 'error');
+        return;
+    }
+    if (!text) {
+        showNotify('Введите сообщение', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch(API_BASE + '/api/messages/reply', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fromEmail: email, text })
+        });
+        const data = await response.json();
+        if (!response.ok || !data.ok) {
+            showNotify(data.message || 'Не удалось отправить', 'error');
+            return;
+        }
+        document.getElementById('clientReplyText').value = '';
+        showNotify('Сообщение отправлено администратору', 'success');
+        await loadClientMessages();
+    } catch (error) {
+        showNotify('Сервер недоступен', 'error');
+    }
 }
 
 // Уведомление

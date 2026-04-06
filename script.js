@@ -326,7 +326,7 @@ if ('requestIdleCallback' in window) {
    АУТЕНТИФИКАЦИЯ И МОДАЛЬНЫЕ ОКНА
    ============================================ */
 
-const ADMIN_ACCESS_CODE = 'ROZA-ADMIN-2026';
+const ADMIN_ACCESS_CODE = '0000';
 const API_BASE = localStorage.getItem('apiBaseUrl') || 'http://127.0.0.1:5000';
 
 function getStorageArray(key) {
@@ -347,8 +347,8 @@ function addAdminRecord(key, payload) {
     setStorageArray(key, items.slice(0, 200));
 }
 
-function openAdminAccess() {
-    const code = window.prompt('Введите код администратора');
+async function openAdminAccess() {
+    const code = window.prompt('Введите пароль спецвхода');
     if (!code) {
         return;
     }
@@ -356,8 +356,23 @@ function openAdminAccess() {
         showError('Неверный код администратора');
         return;
     }
-    localStorage.setItem('isAdminLoggedIn', 'true');
-    window.location.href = 'admin.html';
+    try {
+        const response = await fetch(API_BASE + '/api/admin/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: code.trim() })
+        });
+        const data = await response.json();
+        if (!response.ok || !data.ok) {
+            showError(data.message || 'Ошибка спецвхода');
+            return;
+        }
+        localStorage.setItem('isAdminLoggedIn', 'true');
+        localStorage.setItem('adminToken', data.token);
+        window.location.href = 'admin.html';
+    } catch (error) {
+        showError('Сервер спецвхода недоступен');
+    }
 }
 
 // Функции для работы с модальными окнами входа
@@ -741,6 +756,51 @@ document.addEventListener('DOMContentLoaded', () => {
         showSuccess('Спасибо! Ваш отзыв опубликован.');
     });
 });
+
+async function renderPublicContent() {
+    const root = document.getElementById('publicContentList');
+    if (!root) {
+        return;
+    }
+
+    try {
+        const response = await fetch(API_BASE + '/api/content');
+        const data = await response.json();
+        if (!response.ok || !data.ok) {
+            root.innerHTML = '<div class="public-item"><p>Материалы скоро появятся.</p></div>';
+            return;
+        }
+
+        const names = {
+            story: 'История',
+            doc: 'Документ',
+            photo: 'Фото',
+            video: 'Видео'
+        };
+
+        const items = (data.items || []).slice(0, 20);
+        if (!items.length) {
+            root.innerHTML = '<div class="public-item"><p>Пока нет публикаций.</p></div>';
+            return;
+        }
+
+        root.innerHTML = items.map((item) => {
+            const kind = names[item.kind] || item.kind;
+            const link = item.media_url ? '<a href="' + item.media_url + '" target="_blank" rel="noopener noreferrer">Открыть</a>' : '';
+            const body = item.body ? item.body : 'Без описания';
+            return '<article class="public-item">'
+                + '<div class="kind">' + kind + '</div>'
+                + '<h3>' + (item.title || 'Без названия') + '</h3>'
+                + '<p>' + body + '</p>'
+                + link
+                + '</article>';
+        }).join('');
+    } catch (error) {
+        root.innerHTML = '<div class="public-item"><p>Не удалось загрузить публикации.</p></div>';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', renderPublicContent);
 
 // Показ сообщения об ошибке
 function showError(message) {

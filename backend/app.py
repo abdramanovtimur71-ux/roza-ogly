@@ -1,5 +1,6 @@
 import os
 import re
+import secrets
 import sqlite3
 from contextlib import closing
 from datetime import datetime, timedelta
@@ -17,6 +18,9 @@ load_dotenv()
 DB_PATH = os.path.join(os.path.dirname(__file__), "site.db")
 TIME_GAP_MINUTES = 60
 TRAINING_CAPACITY = 25
+TRAINING_PRICE_KZT = int(os.getenv("TRAINING_PRICE_KZT", "75000"))
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "0000")
+ADMIN_SESSION_MINUTES = int(os.getenv("ADMIN_SESSION_MINUTES", "720"))
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("APP_SECRET_KEY", "dev-secret")
@@ -36,6 +40,8 @@ limiter = Limiter(
     storage_uri="memory://",
 )
 limiter.init_app(app)
+
+ADMIN_SESSIONS = {}
 
 
 def get_conn():
@@ -69,12 +75,106 @@ def init_db():
                 email TEXT NOT NULL,
                 phone TEXT,
                 payment_verified INTEGER NOT NULL,
+                payment_id TEXT,
                 status TEXT NOT NULL,
                 created_at TEXT NOT NULL
             )
             """
         )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS payments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                payment_id TEXT NOT NULL UNIQUE,
+                amount INTEGER NOT NULL,
+                currency TEXT NOT NULL,
+                card_last4 TEXT,
+                holder TEXT,
+                status TEXT NOT NULL,
+                consumed INTEGER NOT NULL DEFAULT 0,
+                created_at TEXT NOT NULL
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS content_items (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                kind TEXT NOT NULL,
+                title TEXT NOT NULL,
+                body TEXT,
+                media_url TEXT,
+                created_at TEXT NOT NULL
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS client_messages (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                from_email TEXT NOT NULL,
+                to_email TEXT NOT NULL,
+                subject TEXT,
+                text TEXT NOT NULL,
+                sender_role TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            )
+            """
+        )
         conn.commit()
+
+
+def cleanup_admin_sessions():
+    now = datetime.now()
+    expired = [token for token, exp in ADMIN_SESSIONS.items() if exp < now]
+    for token in expired:
+        ADMIN_SESSIONS.pop(token, None)
+
+
+def issue_admin_token() -> str:
+    cleanup_admin_sessions()
+    token = secrets.token_urlsafe(32)
+    ADMIN_SESSIONS[token] = datetime.now() + timedelta(minutes=ADMIN_SESSION_MINUTES)
+    return token
+
+
+def is_admin_request() -> bool:
+    cleanup_admin_sessions()
+    token = request.headers.get("X-Admin-Token", "").strip()
+    return bool(token and token in ADMIN_SESSIONS)
+
+
+def require_admin_or_401():
+    if not is_admin_request():
+        return jsonify({"ok": False, "message": "Требуется спецвход администратора"}), 401
+    return None
+
+
+def luhn_valid(card_number: str) -> bool:
+    digits = [int(ch) for ch in card_number if ch.isdigit()]
+    if len(digits) < 13:
+        return False
+    checksum = 0
+    parity = len(digits) % 2
+    for i, digit in enumerate(digits):
+        if i % 2 == parity:
+            digit *= 2
+            if digit > 9:
+                digit -= 9
+        checksum += digit
+    return checksum % 10 == 0
+
+
+def exp_valid(mm_yy: str) -> bool:
+    if not re.match(r"^\d{2}/\d{2}$", mm_yy or ""):
+        return False
+    month = int(mm_yy[:2])
+    year = int(mm_yy[3:]) + 2000
+    if month < 1 or month > 12:
+        return False
+    now = datetime.now()
+    # Card valid through end of month.
+    return (year > now.year) or (year == now.year and month >= now.month)
 
 
 def parse_iso(dt_str: str):
@@ -196,6 +296,233 @@ def health():
     return jsonify({"ok": True})
 
 
+@app.route("/api/admin/login", methods=["POST"])
+@limiter.limit("20 per minute")
+def admin_login():
+    payload = request.get_json(silent=True) or {}
+    password = (payload.get("password") or "").strip()
+    if password != ADMIN_PASSWORD:
+        return jsonify({"ok": False, "message": "Неверный пароль спецвхода"}), 401
+    token = issue_admin_token()
+    return jsonify({"ok": True, "token": token, "expiresInMinutes": ADMIN_SESSION_MINUTES})
+
+
+@app.route("/api/admin/content", methods=["GET", "POST"])
+def admin_content():
+    auth_error = require_admin_or_401()
+    if auth_error:
+        return auth_error
+
+    if request.method == "GET":
+        with closing(get_conn()) as conn:
+            rows = conn.execute(
+                "SELECT id, kind, title, body, media_url, created_at FROM content_items ORDER BY id DESC"
+            ).fetchall()
+        return jsonify({"ok": True, "items": [dict(r) for r in rows]})
+
+    payload = request.get_json(silent=True) or {}
+    kind = (payload.get("kind") or "").strip().lower()
+    title = (payload.get("title") or "").strip()
+    body = (payload.get("body") or "").strip()
+    media_url = (payload.get("mediaUrl") or "").strip()
+
+    if kind not in {"story", "doc", "photo", "video"}:
+        return jsonify({"ok": False, "message": "Тип должен быть: story/doc/photo/video"}), 400
+    if not title:
+        return jsonify({"ok": False, "message": "Укажите заголовок"}), 400
+
+    with closing(get_conn()) as conn:
+        conn.execute(
+            """
+            INSERT INTO content_items (kind, title, body, media_url, created_at)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (kind, title, body, media_url, datetime.now().isoformat()),
+        )
+        conn.commit()
+
+    return jsonify({"ok": True, "message": "Контент добавлен"})
+
+
+@app.route("/api/content", methods=["GET"])
+def public_content():
+    with closing(get_conn()) as conn:
+        rows = conn.execute(
+            "SELECT id, kind, title, body, media_url, created_at FROM content_items ORDER BY id DESC LIMIT 50"
+        ).fetchall()
+    return jsonify({"ok": True, "items": [dict(r) for r in rows]})
+
+
+@app.route("/api/admin/participants", methods=["GET"])
+def admin_participants():
+    auth_error = require_admin_or_401()
+    if auth_error:
+        return auth_error
+
+    with closing(get_conn()) as conn:
+        bookings = conn.execute(
+            """
+            SELECT name, email, phone, booking_at, created_at
+            FROM bookings
+            ORDER BY id DESC
+            LIMIT 500
+            """
+        ).fetchall()
+        learners = conn.execute(
+            """
+            SELECT name, email, phone, status, created_at
+            FROM training_enrollments
+            ORDER BY id DESC
+            LIMIT 500
+            """
+        ).fetchall()
+
+    return jsonify(
+        {
+            "ok": True,
+            "bookings": [dict(r) for r in bookings],
+            "learners": [dict(r) for r in learners],
+        }
+    )
+
+
+@app.route("/api/admin/messages", methods=["GET"])
+def admin_messages():
+    auth_error = require_admin_or_401()
+    if auth_error:
+        return auth_error
+
+    with closing(get_conn()) as conn:
+        rows = conn.execute(
+            """
+            SELECT id, from_email, to_email, subject, text, sender_role, created_at
+            FROM client_messages
+            ORDER BY id DESC
+            LIMIT 500
+            """
+        ).fetchall()
+    return jsonify({"ok": True, "messages": [dict(r) for r in rows]})
+
+
+@app.route("/api/admin/messages/send", methods=["POST"])
+def admin_send_message():
+    auth_error = require_admin_or_401()
+    if auth_error:
+        return auth_error
+
+    payload = request.get_json(silent=True) or {}
+    to_email = (payload.get("toEmail") or "").strip().lower()
+    subject = (payload.get("subject") or "").strip()
+    text = (payload.get("text") or "").strip()
+
+    if not validate_email(to_email):
+        return jsonify({"ok": False, "message": "Некорректный email клиента"}), 400
+    if len(text) < 2:
+        return jsonify({"ok": False, "message": "Введите текст сообщения"}), 400
+
+    with closing(get_conn()) as conn:
+        conn.execute(
+            """
+            INSERT INTO client_messages (from_email, to_email, subject, text, sender_role, created_at)
+            VALUES (?, ?, ?, ?, 'admin', ?)
+            """,
+            ("admin@roza-ogly.local", to_email, subject, text, datetime.now().isoformat()),
+        )
+        conn.commit()
+
+    return jsonify({"ok": True, "message": "Сообщение отправлено клиенту"})
+
+
+@app.route("/api/messages/inbox", methods=["GET"])
+def client_inbox():
+    email = (request.args.get("email") or "").strip().lower()
+    if not validate_email(email):
+        return jsonify({"ok": False, "message": "Некорректный email"}), 400
+
+    with closing(get_conn()) as conn:
+        rows = conn.execute(
+            """
+            SELECT id, from_email, to_email, subject, text, sender_role, created_at
+            FROM client_messages
+            WHERE to_email=? OR from_email=?
+            ORDER BY id DESC
+            LIMIT 300
+            """,
+            (email, email),
+        ).fetchall()
+
+    return jsonify({"ok": True, "messages": [dict(r) for r in rows]})
+
+
+@app.route("/api/messages/reply", methods=["POST"])
+@limiter.limit("30 per hour")
+def client_reply():
+    payload = request.get_json(silent=True) or {}
+    from_email = (payload.get("fromEmail") or "").strip().lower()
+    text = (payload.get("text") or "").strip()
+
+    if not validate_email(from_email):
+        return jsonify({"ok": False, "message": "Некорректный email"}), 400
+    if len(text) < 2:
+        return jsonify({"ok": False, "message": "Введите текст сообщения"}), 400
+
+    with closing(get_conn()) as conn:
+        conn.execute(
+            """
+            INSERT INTO client_messages (from_email, to_email, subject, text, sender_role, created_at)
+            VALUES (?, ?, ?, ?, 'client', ?)
+            """,
+            (from_email, "admin@roza-ogly.local", "Ответ клиента", text, datetime.now().isoformat()),
+        )
+        conn.commit()
+
+    return jsonify({"ok": True, "message": "Ответ отправлен администратору"})
+
+
+@app.route("/api/payments/verify", methods=["POST"])
+@limiter.limit("20 per minute")
+def verify_payment():
+    payload = request.get_json(silent=True) or {}
+    amount = int(payload.get("amount") or 0)
+    currency = (payload.get("currency") or "KZT").strip().upper()
+    card = (payload.get("card") or "").replace(" ", "")
+    exp = (payload.get("exp") or "").strip()
+    cvv = (payload.get("cvv") or "").strip()
+    holder = (payload.get("holder") or "").strip()
+
+    if amount != TRAINING_PRICE_KZT or currency != "KZT":
+        return jsonify({"ok": False, "message": "Сумма или валюта платежа не совпадает"}), 400
+
+    mode = os.getenv("PAYMENT_VERIFY_MODE", "mock").strip().lower()
+    if mode not in {"mock", "strict"}:
+        mode = "mock"
+
+    if mode == "strict":
+        return jsonify({"ok": False, "message": "Strict-провайдер не настроен. Установите PAYMENT_VERIFY_MODE=mock или подключите шлюз."}), 503
+
+    if not luhn_valid(card):
+        return jsonify({"ok": False, "message": "Неверный номер карты"}), 400
+    if not exp_valid(exp):
+        return jsonify({"ok": False, "message": "Срок карты истек или некорректен"}), 400
+    if not re.match(r"^\d{3,4}$", cvv):
+        return jsonify({"ok": False, "message": "Некорректный CVV"}), 400
+    if len(holder) < 2:
+        return jsonify({"ok": False, "message": "Укажите имя владельца"}), 400
+
+    payment_id = f"PAY-{int(datetime.now().timestamp() * 1000)}"
+    with closing(get_conn()) as conn:
+        conn.execute(
+            """
+            INSERT INTO payments (payment_id, amount, currency, card_last4, holder, status, created_at)
+            VALUES (?, ?, ?, ?, ?, 'paid', ?)
+            """,
+            (payment_id, amount, currency, card[-4:], holder, datetime.now().isoformat()),
+        )
+        conn.commit()
+
+    return jsonify({"ok": True, "paymentId": payment_id, "status": "paid"})
+
+
 @app.route("/api/bookings", methods=["POST"])
 @limiter.limit("20 per minute")
 def create_booking():
@@ -291,9 +618,8 @@ def enroll_training():
     email = (payload.get("email") or "").strip()
     phone = (payload.get("phone") or "").strip()
     payment_id = (payload.get("paymentId") or "").strip()
-    card_last4 = (payload.get("cardLast4") or "").strip()
 
-    if not all([name, email, payment_id, card_last4]):
+    if not all([name, email, payment_id]):
         return jsonify({"ok": False, "message": "Для зачисления нужна подтвержденная оплата"}), 400
     if not validate_email(email):
         return jsonify({"ok": False, "message": "Некорректный email"}), 400
@@ -301,6 +627,15 @@ def enroll_training():
         return jsonify({"ok": False, "message": "Некорректный номер телефона"}), 400
 
     with closing(get_conn()) as conn:
+        payment = conn.execute(
+            "SELECT payment_id, status, consumed, card_last4 FROM payments WHERE payment_id=?",
+            (payment_id,),
+        ).fetchone()
+        if not payment or payment["status"] != "paid":
+            return jsonify({"ok": False, "message": "Платеж не подтвержден"}), 409
+        if int(payment["consumed"]) == 1:
+            return jsonify({"ok": False, "message": "Этот платеж уже использован"}), 409
+
         dup = conn.execute("SELECT id FROM training_enrollments WHERE email=?", (email,)).fetchone()
         if dup:
             return jsonify({"ok": False, "message": "Вы уже в списке обучения"}), 409
@@ -310,15 +645,16 @@ def enroll_training():
 
         conn.execute(
             """
-            INSERT INTO training_enrollments (name, email, phone, payment_verified, status, created_at)
-            VALUES (?, ?, ?, 1, ?, ?)
+            INSERT INTO training_enrollments (name, email, phone, payment_verified, payment_id, status, created_at)
+            VALUES (?, ?, ?, 1, ?, ?, ?)
             """,
-            (name, email, phone, status, datetime.now().isoformat()),
+            (name, email, phone, payment_id, status, datetime.now().isoformat()),
         )
+        conn.execute("UPDATE payments SET consumed=1 WHERE payment_id=?", (payment_id,))
         conn.commit()
 
     if status == "accepted":
-        text = f"Новый ученик зачислен: {name}, {email}, карта ****{card_last4}, paymentId={payment_id}"
+        text = f"Новый ученик зачислен: {name}, {email}, карта ****{payment['card_last4']}, paymentId={payment_id}"
     else:
         text = f"Оплата принята, но мест нет. Добавлен в лист ожидания: {name}, {email}, paymentId={payment_id}"
 
@@ -377,6 +713,9 @@ def support_ai():
     return jsonify({"ok": True, "answer": answer})
 
 
+init_db()
+
+
 if __name__ == "__main__":
-    init_db()
-    app.run(host="0.0.0.0", port=5000, debug=False)
+    port = int(os.getenv("PORT", "5000"))
+    app.run(host="0.0.0.0", port=port, debug=False)

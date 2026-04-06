@@ -828,6 +828,47 @@ h1, h2, h3 { font-family: 'Cinzel', serif; font-weight: 600; color: var(--t1); l
 .read-more { font-size: 12px; color: var(--purple-l); letter-spacing: 1px; text-decoration: none; transition: var(--tr); }
 .read-more:hover { color: var(--gold); }
 
+/* ─── ПУБЛИКАЦИИ ───────────────────────────────── */
+.public-content { background: var(--bg3); }
+.public-content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 18px;
+}
+.public-item {
+    background: var(--card);
+    border: 1px solid var(--br);
+    border-radius: var(--r2);
+    padding: 18px;
+    transition: var(--tr);
+}
+.public-item:hover {
+    border-color: var(--br-g);
+    box-shadow: var(--glow-g);
+}
+.public-item .kind {
+    font-size: 11px;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+}
+.public-item h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+.public-item p {
+    color: var(--t2);
+    font-size: 14px;
+    line-height: 1.7;
+    margin-bottom: 12px;
+}
+.public-item a {
+    color: var(--gold-l);
+    text-decoration: none;
+    border-bottom: 1px dashed rgba(212,174,92,0.5);
+}
+
 /* ─── ПРЕДЛОЖЕНИЯ ────────────────────────────────── */
 .offers { background: var(--bg2); }
 .offers-banner { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
