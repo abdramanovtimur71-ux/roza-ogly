@@ -273,7 +273,7 @@ def add_security_headers(resp):
     origin = request.headers.get("Origin")
     if origin and origin in ALLOWED_ORIGINS:
         resp.headers["Access-Control-Allow-Origin"] = origin
-        resp.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+        resp.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Admin-Token"
         resp.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
         resp.headers["Vary"] = "Origin"
 

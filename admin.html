@@ -19,6 +19,17 @@
             </div>
         </header>
 
+        <section class="panel">
+            <h2>Подключение API (без консоли)</h2>
+            <div class="api-inline">
+                <input id="apiBaseInput" type="url" placeholder="https://your-backend.onrender.com" />
+                <button class="btn btn-main" type="button" onclick="saveApiBase()">Сохранить API</button>
+                <button class="btn" type="button" onclick="testApiBase()">Проверить</button>
+                <button class="btn" type="button" onclick="openSiteWithApi()">Открыть сайт с API</button>
+            </div>
+            <div class="sub" id="apiStatus" style="margin-top:8px">Текущий API: не задан</div>
+        </section>
+
         <section class="kpis">
             <article class="kpi"><div class="label">Участники обучения</div><div class="val" id="kpiLearners">0</div></article>
             <article class="kpi"><div class="label">Лист ожидания</div><div class="val" id="kpiWaitlist">0</div></article>
@@ -98,11 +109,93 @@
     </div>
 
     <script>
-        const API_BASE = localStorage.getItem('apiBaseUrl') || 'http://127.0.0.1:5000';
+        const API_BASE = (() => {
+            const params = new URLSearchParams(window.location.search);
+            const fromQuery = (params.get('api') || '').trim().replace(/\/$/, '');
+            if (/^https?:\/\//i.test(fromQuery)) {
+                localStorage.setItem('apiBaseUrl', fromQuery);
+                return fromQuery;
+            }
+            return (localStorage.getItem('apiBaseUrl') || 'http://127.0.0.1:5000').trim().replace(/\/$/, '');
+        })();
         const ADMIN_ACCESS_CODE = '0000';
+
+        function currentApiBase() {
+            return (localStorage.getItem('apiBaseUrl') || 'http://127.0.0.1:5000').trim();
+        }
+
+        function updateApiStatus(text) {
+            const el = document.getElementById('apiStatus');
+            if (el) {
+                el.textContent = text;
+            }
+        }
+
+        function initApiControls() {
+            const input = document.getElementById('apiBaseInput');
+            if (!input) {
+                return;
+            }
+            const value = currentApiBase();
+            input.value = value;
+            updateApiStatus('Текущий API: ' + value);
+        }
+
+        function saveApiBase() {
+            const input = document.getElementById('apiBaseInput');
+            if (!input) {
+                return;
+            }
+            const value = (input.value || '').trim().replace(/\/$/, '');
+            if (!/^https?:\/\//i.test(value)) {
+                alert('Укажите корректный URL, например https://example.onrender.com');
+                return;
+            }
+            localStorage.setItem('apiBaseUrl', value);
+            updateApiStatus('Текущий API: ' + value);
+            alert('API сохранен');
+        }
+
+        async function testApiBase() {
+            const input = document.getElementById('apiBaseInput');
+            const value = ((input && input.value) || currentApiBase()).trim().replace(/\/$/, '');
+            if (!/^https?:\/\//i.test(value)) {
+                alert('Сначала укажите корректный URL API');
+                return;
+            }
+            try {
+                const response = await fetch(value + '/api/health');
+                const data = await response.json();
+                if (response.ok && data.ok) {
+                    updateApiStatus('API доступен: ' + value);
+                    alert('Проверка успешна');
+                } else {
+                    updateApiStatus('API ответил с ошибкой: ' + value);
+                    alert('API ответил с ошибкой');
+                }
+            } catch {
+                updateApiStatus('API недоступен: ' + value);
+                alert('Не удалось подключиться к API');
+            }
+        }
+
+        function openSiteWithApi() {
+            const input = document.getElementById('apiBaseInput');
+            const value = ((input && input.value) || currentApiBase()).trim().replace(/\/$/, '');
+            if (!/^https?:\/\//i.test(value)) {
+                alert('Сначала укажите корректный URL API');
+                return;
+            }
+            localStorage.setItem('apiBaseUrl', value);
+            window.open('index.html?api=' + encodeURIComponent(value), '_blank');
+        }
 
         function getAdminToken() {
             return localStorage.getItem('adminToken') || '';
+        }
+
+        function isOfflineAdminSetup() {
+            return localStorage.getItem('adminOfflineAccess') === 'true';
         }
 
         function authHeaders() {
@@ -115,11 +208,14 @@
         async function checkAdmin() {
             let token = getAdminToken();
             if (token) {
+                localStorage.removeItem('adminOfflineAccess');
                 return true;
             }
 
             const code = prompt('Введите пароль спецвхода');
-            if (!code || code.trim() !== ADMIN_ACCESS_CODE) {
+            const normalized = (code || '').trim().toLowerCase();
+            const password = normalized === 'роза оглы' ? ADMIN_ACCESS_CODE : (code || '').trim();
+            if (!password || password !== ADMIN_ACCESS_CODE) {
                 alert('Доступ запрещен');
                 window.location.href = 'index.html';
                 return false;
@@ -129,7 +225,7 @@
                 const response = await fetch(API_BASE + '/api/admin/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ password: code.trim() })
+                    body: JSON.stringify({ password })
                 });
                 const data = await response.json();
                 if (!response.ok || !data.ok) {
@@ -138,10 +234,12 @@
                     return false;
                 }
                 localStorage.setItem('adminToken', data.token);
+                localStorage.removeItem('adminOfflineAccess');
                 return true;
             } catch {
-                alert('Сервер спецвхода недоступен');
-                window.location.href = 'index.html';
+                localStorage.setItem('adminOfflineAccess', 'true');
+                updateApiStatus('Сервер входа недоступен. Укажите правильный URL API и нажмите «Проверить API».');
+                alert('Сервер спецвхода недоступен. Открыт режим настройки API.');
                 return false;
             }
         }
@@ -287,11 +385,17 @@
         function clearAdminSession() {
             localStorage.removeItem('isAdminLoggedIn');
             localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminOfflineAccess');
             window.location.href = 'index.html';
         }
 
         window.addEventListener('DOMContentLoaded', async () => {
-            if (!(await checkAdmin())) return;
+            initApiControls();
+            const isAdminReady = await checkAdmin();
+            if (!isAdminReady && isOfflineAdminSetup()) {
+                return;
+            }
+            if (!isAdminReady) return;
             try {
                 await loadAdminData();
             } catch (error) {

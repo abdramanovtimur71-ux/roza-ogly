@@ -113,6 +113,22 @@ h1 {
     margin: 0 0 8px;
 }
 
+.api-inline {
+    display: grid;
+    grid-template-columns: 1.6fr auto auto auto;
+    gap: 10px;
+}
+
+.api-inline input {
+    width: 100%;
+    background: #0f1124;
+    border: 1px solid var(--line);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-family: 'Inter', sans-serif;
+}
+
 .kpis {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -185,7 +201,8 @@ h1 {
     }
 
     .form-grid,
-    .double-grid {
+    .double-grid,
+    .api-inline {
         grid-template-columns: 1fr;
     }
 }
