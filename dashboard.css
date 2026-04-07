@@ -324,6 +324,95 @@ h1, h2, h3, h4 { font-family: 'Cinzel', serif; font-weight: 600; color: var(--t1
 .profile-avatar-info h4 { font-family: 'Cinzel', serif; font-size: 16px; color: var(--t1); margin-bottom: 6px; }
 .profile-avatar-info p { font-size: 13px; color: var(--t3); margin-bottom: 12px; }
 
+/* Магазин */
+.shop-dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.shop-dash-card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0)), var(--card);
+}
+
+.shop-dash-featured {
+    border-color: var(--br-g);
+    box-shadow: 0 16px 40px rgba(196,162,74,0.10);
+}
+
+.shop-dash-text,
+.shop-dash-note,
+.spell-dash-item p {
+    font-size: 13.5px;
+    color: var(--t2);
+    line-height: 1.75;
+}
+
+.shop-dash-box,
+.spell-dash-item {
+    border: 1px solid var(--br);
+    border-radius: var(--r2);
+    padding: 16px;
+    background: var(--bg2);
+    margin-top: 8px;
+}
+
+.shop-dash-box h3,
+.spell-dash-item h3 {
+    font-size: 16px;
+    margin-bottom: 8px;
+    color: var(--t1);
+}
+
+.shop-dash-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.shop-dash-list li {
+    color: var(--t2);
+    font-size: 13.5px;
+    position: relative;
+    padding-left: 16px;
+}
+
+.shop-dash-list li::before {
+    content: '✦';
+    position: absolute;
+    left: 0;
+    top: 2px;
+    color: var(--gold-l);
+    font-size: 10px;
+}
+
+.shop-price-line {
+    font-family: 'Cinzel', serif;
+    font-size: 18px;
+    color: var(--gold-l);
+}
+
+.shop-dash-image {
+    width: 100%;
+    height: 260px;
+    object-fit: cover;
+    border-radius: var(--r2);
+    border: 1px solid var(--br);
+    margin: 4px 0 4px;
+}
+
+.shop-dash-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+
+.shop-dash-actions .btn {
+    width: 100%;
+}
+
 /* ─── НАСТРОЙКИ ──────────────────────────────────── */
 .settings-section { margin-bottom: 32px; }
 .settings-section h3 { font-family: 'Cinzel', serif; font-size: 17px; color: var(--t1); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--br); }
@@ -446,5 +535,6 @@ h1, h2, h3, h4 { font-family: 'Cinzel', serif; font-weight: 600; color: var(--t1
     .content { padding: 24px 20px; }
     .topbar { padding: 16px 20px; }
     .profile-form-grid { grid-template-columns: 1fr; }
+    .shop-dashboard-grid { grid-template-columns: 1fr; }
     .dash-hamburger { display: flex; }
 }
