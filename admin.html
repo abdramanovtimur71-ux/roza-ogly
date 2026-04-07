@@ -30,6 +30,14 @@
             <div class="sub" id="apiStatus" style="margin-top:8px">Текущий API: не задан</div>
         </section>
 
+        <section class="panel">
+            <h2>Автонапоминания</h2>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+                <button class="btn" type="button" onclick="runRemindersNow()">Запустить проверку напоминаний</button>
+                <span class="sub" id="reminderStatus">Пока не запускалось</span>
+            </div>
+        </section>
+
         <section class="kpis">
             <article class="kpi"><div class="label">Участники обучения</div><div class="val" id="kpiLearners">0</div></article>
             <article class="kpi"><div class="label">Лист ожидания</div><div class="val" id="kpiWaitlist">0</div></article>
@@ -41,7 +49,18 @@
         <section class="panel analytics-shell">
             <div class="panel-head">
                 <h2>Аналитика клиентов и дохода</h2>
-                <button class="btn" type="button" onclick="refreshAnalytics()">Обновить аналитику</button>
+                <div class="analytics-actions">
+                    <select id="analyticsPreset" onchange="applyAnalyticsPreset()">
+                        <option value="30">30 дней</option>
+                        <option value="7">7 дней</option>
+                        <option value="90">90 дней</option>
+                        <option value="custom">Свой период</option>
+                    </select>
+                    <input id="analyticsStart" type="date">
+                    <input id="analyticsEnd" type="date">
+                    <button class="btn" type="button" onclick="refreshAnalytics()">Обновить аналитику</button>
+                    <button class="btn btn-main" type="button" onclick="exportAnalyticsCsv()">Экспорт CSV</button>
+                </div>
             </div>
 
             <div class="analytics-cards">
@@ -225,6 +244,29 @@
             }
         }
 
+        async function runRemindersNow() {
+            const status = document.getElementById('reminderStatus');
+            try {
+                const response = await fetch(API_BASE + '/api/tasks/reminders/run', {
+                    method: 'POST',
+                    headers: authHeaders()
+                });
+                const data = await response.json();
+                if (!response.ok || !data.ok) {
+                    throw new Error(data.message || 'Не удалось запустить задачу напоминаний');
+                }
+                if (status) {
+                    status.textContent = 'Готово: 24ч=' + (data.sent24h || 0) + ', 2ч=' + (data.sent2h || 0);
+                }
+                alert('Проверка напоминаний выполнена');
+            } catch (error) {
+                if (status) {
+                    status.textContent = 'Ошибка: ' + error.message;
+                }
+                alert('Ошибка запуска напоминаний: ' + error.message);
+            }
+        }
+
         function openSiteWithApi() {
             const input = document.getElementById('apiBaseInput');
             const value = ((input && input.value) || currentApiBase()).trim().replace(/\/$/, '');
@@ -316,6 +358,42 @@
             return new Intl.NumberFormat('ru-RU').format(Number(value || 0)) + ' ₸';
         }
 
+        function toDateInputValue(dt) {
+            if (!(dt instanceof Date) || isNaN(dt.getTime())) return '';
+            const y = dt.getFullYear();
+            const m = String(dt.getMonth() + 1).padStart(2, '0');
+            const d = String(dt.getDate()).padStart(2, '0');
+            return y + '-' + m + '-' + d;
+        }
+
+        function applyAnalyticsPreset() {
+            const presetEl = document.getElementById('analyticsPreset');
+            const startEl = document.getElementById('analyticsStart');
+            const endEl = document.getElementById('analyticsEnd');
+            if (!presetEl || !startEl || !endEl) return;
+            const preset = presetEl.value;
+            const now = new Date();
+
+            if (preset === 'custom') {
+                return;
+            }
+
+            const days = Number(preset || 30);
+            const start = new Date(now.getTime() - (days - 1) * 24 * 60 * 60 * 1000);
+            startEl.value = toDateInputValue(start);
+            endEl.value = toDateInputValue(now);
+        }
+
+        function analyticsQueryString() {
+            const start = (document.getElementById('analyticsStart')?.value || '').trim();
+            const end = (document.getElementById('analyticsEnd')?.value || '').trim();
+            const qs = new URLSearchParams();
+            if (start) qs.set('start', start);
+            if (end) qs.set('end', end);
+            const str = qs.toString();
+            return str ? ('?' + str) : '';
+        }
+
         function renderRevenueChart(labels, values) {
             const root = document.getElementById('revenueChart');
             if (!root) return;
@@ -353,7 +431,7 @@
         }
 
         async function loadAnalytics() {
-            const response = await fetch(API_BASE + '/api/admin/analytics', { headers: authHeaders() });
+            const response = await fetch(API_BASE + '/api/admin/analytics' + analyticsQueryString(), { headers: authHeaders() });
             const data = await response.json();
             if (!response.ok || !data.ok) {
                 throw new Error(data.message || 'Ошибка загрузки аналитики');
@@ -389,6 +467,35 @@
                 alert('Аналитика обновлена');
             } catch (error) {
                 alert('Ошибка обновления аналитики: ' + error.message);
+            }
+        }
+
+        async function exportAnalyticsCsv() {
+            try {
+                const response = await fetch(API_BASE + '/api/admin/analytics/export.csv' + analyticsQueryString(), {
+                    headers: authHeaders()
+                });
+                if (!response.ok) {
+                    let message = 'Не удалось выгрузить CSV';
+                    try {
+                        const err = await response.json();
+                        message = err.message || message;
+                    } catch {
+                        // no-op
+                    }
+                    throw new Error(message);
+                }
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'analytics.csv';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                alert('Ошибка экспорта: ' + error.message);
             }
         }
 
@@ -517,6 +624,7 @@
 
         window.addEventListener('DOMContentLoaded', async () => {
             initApiControls();
+            applyAnalyticsPreset();
             const isAdminReady = await checkAdmin();
             if (!isAdminReady && isOfflineAdminSetup()) {
                 return;

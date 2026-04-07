@@ -4,13 +4,17 @@ import secrets
 import sqlite3
 from collections import Counter, defaultdict
 from contextlib import closing
+from io import StringIO
 from datetime import datetime, timedelta
 from email.message import EmailMessage
 import smtplib
+import csv
+import threading
+import time
 
 import requests
 from dotenv import load_dotenv
-from flask import Flask, jsonify, request
+from flask import Flask, Response, jsonify, request
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
@@ -22,6 +26,12 @@ TRAINING_CAPACITY = 25
 TRAINING_PRICE_KZT = int(os.getenv("TRAINING_PRICE_KZT", "75000"))
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "0000")
 ADMIN_SESSION_MINUTES = int(os.getenv("ADMIN_SESSION_MINUTES", "720"))
+BOOKING_START_HOUR = int(os.getenv("BOOKING_START_HOUR", "9"))
+BOOKING_END_HOUR = int(os.getenv("BOOKING_END_HOUR", "21"))
+SLOT_STEP_MINUTES = int(os.getenv("SLOT_STEP_MINUTES", "60"))
+REMINDER_JOB_ENABLED = os.getenv("REMINDER_JOB_ENABLED", "true").lower() == "true"
+REMINDER_JOB_INTERVAL_SECONDS = int(os.getenv("REMINDER_JOB_INTERVAL_SECONDS", "60"))
+TASK_SECRET = os.getenv("TASK_SECRET", "")
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("APP_SECRET_KEY", "dev-secret")
@@ -43,12 +53,20 @@ limiter = Limiter(
 limiter.init_app(app)
 
 ADMIN_SESSIONS = {}
+_REMINDER_THREAD_STARTED = False
 
 
 def get_conn():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
+
+
+def ensure_column(conn, table: str, column: str, ddl: str):
+    cols = conn.execute(f"PRAGMA table_info({table})").fetchall()
+    if any(c["name"] == column for c in cols):
+        return
+    conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {ddl}")
 
 
 def init_db():
@@ -64,7 +82,11 @@ def init_db():
                 format TEXT,
                 note TEXT,
                 booking_at TEXT NOT NULL,
-                created_at TEXT NOT NULL
+                created_at TEXT NOT NULL,
+                reminder_24h_sent INTEGER NOT NULL DEFAULT 0,
+                reminder_2h_sent INTEGER NOT NULL DEFAULT 0,
+                reminder_24h_sent_at TEXT,
+                reminder_2h_sent_at TEXT
             )
             """
         )
@@ -122,6 +144,10 @@ def init_db():
             )
             """
         )
+        ensure_column(conn, "bookings", "reminder_24h_sent", "INTEGER NOT NULL DEFAULT 0")
+        ensure_column(conn, "bookings", "reminder_2h_sent", "INTEGER NOT NULL DEFAULT 0")
+        ensure_column(conn, "bookings", "reminder_24h_sent_at", "TEXT")
+        ensure_column(conn, "bookings", "reminder_2h_sent_at", "TEXT")
         conn.commit()
 
 
@@ -185,6 +211,13 @@ def parse_iso(dt_str: str):
         return None
 
 
+def parse_ymd(date_str: str):
+    try:
+        return datetime.strptime(date_str, "%Y-%m-%d")
+    except Exception:
+        return None
+
+
 def month_start(dt: datetime) -> datetime:
     return dt.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 
@@ -194,6 +227,22 @@ def shift_month(dt: datetime, delta: int) -> datetime:
     year = dt.year + month // 12
     month = month % 12 + 1
     return dt.replace(year=year, month=month, day=1)
+
+
+def notification_any_success(notify_result: dict) -> bool:
+    for channel in (notify_result or {}).values():
+        if isinstance(channel, tuple) and channel and channel[0] is True:
+            return True
+    return False
+
+
+def ensure_task_secret(req) -> bool:
+    if is_admin_request():
+        return True
+    if not TASK_SECRET:
+        return True
+    token = (req.headers.get("X-Task-Token") or req.args.get("token") or "").strip()
+    return token == TASK_SECRET
 
 
 def validate_email(email: str) -> bool:
@@ -416,12 +465,7 @@ def admin_messages():
     return jsonify({"ok": True, "messages": [dict(r) for r in rows]})
 
 
-@app.route("/api/admin/analytics", methods=["GET"])
-def admin_analytics():
-    auth_error = require_admin_or_401()
-    if auth_error:
-        return auth_error
-
+def build_analytics(start_dt: datetime | None = None, end_dt: datetime | None = None):
     now = datetime.now()
     this_month_start = month_start(now)
     prev_month_start = shift_month(this_month_start, -1)
@@ -457,12 +501,21 @@ def admin_analytics():
             """
         ).fetchall()
 
+    def in_range(created_at: datetime | None):
+        if not created_at:
+            return False
+        if start_dt and created_at < start_dt:
+            return False
+        if end_dt and created_at >= end_dt:
+            return False
+        return True
+
     paid_payments = []
     for p in payments:
         if p["status"] != "paid":
             continue
         created_at = parse_iso(p["created_at"])
-        if not created_at:
+        if not created_at or not in_range(created_at):
             continue
         paid_payments.append(
             {
@@ -472,6 +525,10 @@ def admin_analytics():
                 "created_at": created_at,
             }
         )
+
+    filtered_bookings = [b for b in bookings if in_range(parse_iso(b["created_at"]))]
+    filtered_learners = [l for l in learners if in_range(parse_iso(l["created_at"]))]
+    filtered_messages = [m for m in messages if in_range(parse_iso(m["created_at"]))]
 
     total_revenue = sum(p["amount"] for p in paid_payments)
     this_month_revenue = sum(
@@ -497,7 +554,7 @@ def admin_analytics():
         values.append(sum(p["amount"] for p in paid_payments if ms <= p["created_at"] < me))
 
     services_counter = Counter()
-    for b in bookings:
+    for b in filtered_bookings:
         service = (b["service"] or "Не указано").strip() or "Не указано"
         services_counter[service] += 1
 
@@ -514,13 +571,13 @@ def admin_analytics():
             if not old or when < old:
                 first_seen[email] = when
 
-    for b in bookings:
+    for b in filtered_bookings:
         touch_client(b["email"], parse_iso(b["created_at"]))
 
-    for l in learners:
+    for l in filtered_learners:
         touch_client(l["email"], parse_iso(l["created_at"]))
 
-    for m in messages:
+    for m in filtered_messages:
         if (m["sender_role"] or "").strip() == "client":
             touch_client(m["from_email"], parse_iso(m["created_at"]))
 
@@ -532,7 +589,7 @@ def admin_analytics():
 
     activity = defaultdict(lambda: {"bookings": 0, "messages": 0, "enrollments": 0, "lastAt": None})
 
-    for b in bookings:
+    for b in filtered_bookings:
         email = (b["email"] or "").strip().lower()
         if not validate_email(email):
             continue
@@ -541,7 +598,7 @@ def admin_analytics():
         if created and (not activity[email]["lastAt"] or created > activity[email]["lastAt"]):
             activity[email]["lastAt"] = created
 
-    for l in learners:
+    for l in filtered_learners:
         email = (l["email"] or "").strip().lower()
         if not validate_email(email):
             continue
@@ -550,7 +607,7 @@ def admin_analytics():
         if created and (not activity[email]["lastAt"] or created > activity[email]["lastAt"]):
             activity[email]["lastAt"] = created
 
-    for m in messages:
+    for m in filtered_messages:
         if (m["sender_role"] or "").strip() != "client":
             continue
         email = (m["from_email"] or "").strip().lower()
@@ -577,31 +634,86 @@ def admin_analytics():
         reverse=True,
     )[:10]
 
-    accepted = sum(1 for l in learners if (l["status"] or "") == "accepted")
-    waitlist = sum(1 for l in learners if (l["status"] or "") == "waitlist")
+    accepted = sum(1 for l in filtered_learners if (l["status"] or "") == "accepted")
+    waitlist = sum(1 for l in filtered_learners if (l["status"] or "") == "waitlist")
 
-    return jsonify(
-        {
-            "ok": True,
-            "metrics": {
-                "totalRevenue": total_revenue,
-                "monthRevenue": this_month_revenue,
-                "previousMonthRevenue": prev_month_revenue,
-                "monthGrowthPct": growth_pct,
-                "paidPayments": len(paid_payments),
-                "bookingsTotal": len(bookings),
-                "acceptedLearners": accepted,
-                "waitlistLearners": waitlist,
-                "totalClients": len(unique_clients),
-                "newClients30": new_clients_30,
-            },
-            "revenueSeries": {"labels": labels, "values": values},
-            "topServices": [
-                {"name": name, "count": count}
-                for name, count in services_counter.most_common(6)
-            ],
-            "topClients": top_clients,
-        }
+    return {
+        "ok": True,
+        "metrics": {
+            "totalRevenue": total_revenue,
+            "monthRevenue": this_month_revenue,
+            "previousMonthRevenue": prev_month_revenue,
+            "monthGrowthPct": growth_pct,
+            "paidPayments": len(paid_payments),
+            "bookingsTotal": len(filtered_bookings),
+            "acceptedLearners": accepted,
+            "waitlistLearners": waitlist,
+            "totalClients": len(unique_clients),
+            "newClients30": new_clients_30,
+        },
+        "revenueSeries": {"labels": labels, "values": values},
+        "topServices": [
+            {"name": name, "count": count}
+            for name, count in services_counter.most_common(6)
+        ],
+        "topClients": top_clients,
+    }
+
+
+@app.route("/api/admin/analytics", methods=["GET"])
+def admin_analytics():
+    auth_error = require_admin_or_401()
+    if auth_error:
+        return auth_error
+
+    start = (request.args.get("start") or "").strip()
+    end = (request.args.get("end") or "").strip()
+    start_dt = parse_ymd(start) if start else None
+    end_dt = parse_ymd(end) + timedelta(days=1) if end else None
+    if start and not start_dt:
+        return jsonify({"ok": False, "message": "Некорректная дата start"}), 400
+    if end and not parse_ymd(end):
+        return jsonify({"ok": False, "message": "Некорректная дата end"}), 400
+    if start_dt and end_dt and start_dt >= end_dt:
+        return jsonify({"ok": False, "message": "Период задан некорректно"}), 400
+
+    return jsonify(build_analytics(start_dt, end_dt))
+
+
+@app.route("/api/admin/analytics/export.csv", methods=["GET"])
+def admin_analytics_export_csv():
+    auth_error = require_admin_or_401()
+    if auth_error:
+        return auth_error
+
+    start = (request.args.get("start") or "").strip()
+    end = (request.args.get("end") or "").strip()
+    start_dt = parse_ymd(start) if start else None
+    end_dt = parse_ymd(end) + timedelta(days=1) if end else None
+    data = build_analytics(start_dt, end_dt)
+
+    buf = StringIO()
+    writer = csv.writer(buf)
+    writer.writerow(["metric", "value"])
+    for key, value in data["metrics"].items():
+        writer.writerow([key, value])
+
+    writer.writerow([])
+    writer.writerow(["top_service", "count"])
+    for item in data["topServices"]:
+        writer.writerow([item["name"], item["count"]])
+
+    writer.writerow([])
+    writer.writerow(["client_email", "bookings", "enrollments", "messages", "score", "last_at"])
+    for row in data["topClients"]:
+        writer.writerow([row["email"], row["bookings"], row["enrollments"], row["messages"], row["score"], row["lastAt"] or ""])
+
+    csv_data = buf.getvalue()
+    filename = f"analytics-{datetime.now().strftime('%Y%m%d-%H%M')}.csv"
+    return Response(
+        csv_data,
+        mimetype="text/csv; charset=utf-8",
+        headers={"Content-Disposition": f"attachment; filename={filename}"},
     )
 
 
@@ -724,6 +836,164 @@ def verify_payment():
     return jsonify({"ok": True, "paymentId": payment_id, "status": "paid"})
 
 
+@app.route("/api/bookings/slots", methods=["GET"])
+def booking_slots():
+    date = (request.args.get("date") or "").strip()
+    requested_time = (request.args.get("time") or "").strip()
+    target_day = parse_ymd(date)
+    if not target_day:
+        return jsonify({"ok": False, "message": "Укажите дату в формате YYYY-MM-DD"}), 400
+
+    day_start = target_day.replace(hour=0, minute=0, second=0, microsecond=0)
+    day_end = day_start + timedelta(days=1)
+
+    with closing(get_conn()) as conn:
+        rows = conn.execute("SELECT booking_at FROM bookings").fetchall()
+
+    booked = [parse_iso(r["booking_at"]) for r in rows]
+    booked = [x for x in booked if x]
+
+    slots = []
+    t = day_start.replace(hour=BOOKING_START_HOUR, minute=0)
+    while t < day_start.replace(hour=BOOKING_END_HOUR, minute=0):
+        slots.append(t)
+        t += timedelta(minutes=SLOT_STEP_MINUTES)
+
+    available = []
+    busy = []
+    now = datetime.now()
+    for slot in slots:
+        if slot < now + timedelta(minutes=30):
+            continue
+        conflict = any(abs((b - slot).total_seconds()) / 60 < TIME_GAP_MINUTES for b in booked)
+        if conflict:
+            busy.append(slot.strftime("%H:%M"))
+        else:
+            available.append(slot.strftime("%H:%M"))
+
+    suggested = None
+    if requested_time and re.match(r"^\d{2}:\d{2}$", requested_time):
+        requested_dt = parse_iso(f"{date}T{requested_time}:00")
+        if requested_dt:
+            ordered = sorted(
+                available,
+                key=lambda s: abs((parse_iso(f"{date}T{s}:00") - requested_dt).total_seconds()),
+            )
+            if ordered:
+                suggested = ordered[0]
+
+    return jsonify(
+        {
+            "ok": True,
+            "date": date,
+            "available": available,
+            "busy": busy,
+            "suggestedTime": suggested,
+        }
+    )
+
+
+def process_reminders_once():
+    now = datetime.now()
+    window_24h_start = now + timedelta(hours=23, minutes=30)
+    window_24h_end = now + timedelta(hours=24, minutes=30)
+    window_2h_start = now + timedelta(hours=1, minutes=30)
+    window_2h_end = now + timedelta(hours=2, minutes=30)
+
+    sent_24h = 0
+    sent_2h = 0
+
+    with closing(get_conn()) as conn:
+        rows_24h = conn.execute(
+            """
+            SELECT id, name, email, phone, service, booking_at, format
+            FROM bookings
+            WHERE reminder_24h_sent=0
+            """
+        ).fetchall()
+        rows_2h = conn.execute(
+            """
+            SELECT id, name, email, phone, service, booking_at, format
+            FROM bookings
+            WHERE reminder_2h_sent=0
+            """
+        ).fetchall()
+
+    for row in rows_24h:
+        booking_at = parse_iso(row["booking_at"])
+        if not booking_at or not (window_24h_start <= booking_at <= window_24h_end):
+            continue
+        text = (
+            "Напоминание за 24 часа\n"
+            f"Клиент: {row['name']}\n"
+            f"Email: {row['email']}\n"
+            f"Телефон: {row['phone'] or '—'}\n"
+            f"Услуга: {row['service']}\n"
+            f"Формат: {row['format'] or '—'}\n"
+            f"Время: {booking_at.strftime('%d.%m.%Y %H:%M')}"
+        )
+        notify = send_all_notifications("Напоминание клиенту за 24 часа", text)
+        if notification_any_success(notify):
+            with closing(get_conn()) as conn:
+                conn.execute(
+                    "UPDATE bookings SET reminder_24h_sent=1, reminder_24h_sent_at=? WHERE id=? AND reminder_24h_sent=0",
+                    (now.isoformat(), row["id"]),
+                )
+                conn.commit()
+            sent_24h += 1
+
+    for row in rows_2h:
+        booking_at = parse_iso(row["booking_at"])
+        if not booking_at or not (window_2h_start <= booking_at <= window_2h_end):
+            continue
+        text = (
+            "Напоминание за 2 часа\n"
+            f"Клиент: {row['name']}\n"
+            f"Email: {row['email']}\n"
+            f"Телефон: {row['phone'] or '—'}\n"
+            f"Услуга: {row['service']}\n"
+            f"Формат: {row['format'] or '—'}\n"
+            f"Время: {booking_at.strftime('%d.%m.%Y %H:%M')}"
+        )
+        notify = send_all_notifications("Напоминание клиенту за 2 часа", text)
+        if notification_any_success(notify):
+            with closing(get_conn()) as conn:
+                conn.execute(
+                    "UPDATE bookings SET reminder_2h_sent=1, reminder_2h_sent_at=? WHERE id=? AND reminder_2h_sent=0",
+                    (now.isoformat(), row["id"]),
+                )
+                conn.commit()
+            sent_2h += 1
+
+    return {"sent24h": sent_24h, "sent2h": sent_2h}
+
+
+@app.route("/api/tasks/reminders/run", methods=["POST"])
+def run_reminders_task():
+    if not ensure_task_secret(request):
+        return jsonify({"ok": False, "message": "Неверный task token"}), 401
+    stats = process_reminders_once()
+    return jsonify({"ok": True, **stats})
+
+
+def start_reminder_worker_once():
+    global _REMINDER_THREAD_STARTED
+    if _REMINDER_THREAD_STARTED or not REMINDER_JOB_ENABLED:
+        return
+    _REMINDER_THREAD_STARTED = True
+
+    def worker():
+        while True:
+            try:
+                process_reminders_once()
+            except Exception:
+                pass
+            time.sleep(max(30, REMINDER_JOB_INTERVAL_SECONDS))
+
+    thread = threading.Thread(target=worker, daemon=True, name="reminder-worker")
+    thread.start()
+
+
 @app.route("/api/bookings", methods=["POST"])
 @limiter.limit("20 per minute")
 def create_booking():
@@ -772,8 +1042,11 @@ def create_booking():
 
         conn.execute(
             """
-            INSERT INTO bookings (name, email, phone, service, format, note, booking_at, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO bookings (
+                name, email, phone, service, format, note, booking_at, created_at,
+                reminder_24h_sent, reminder_2h_sent
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, 0)
             """,
             (
                 name,
@@ -915,6 +1188,7 @@ def support_ai():
 
 
 init_db()
+start_reminder_worker_once()
 
 
 if __name__ == "__main__":

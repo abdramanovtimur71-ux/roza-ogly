@@ -653,14 +653,62 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    const dateField = bookingForm.querySelector('input[type="date"]');
+    const timeField = bookingForm.querySelector('input[type="time"]');
+    const slotRoot = document.getElementById('mainBookingSlots');
+
+    async function loadSlotHints() {
+        if (!dateField || !slotRoot) return;
+        const date = (dateField.value || '').trim();
+        if (!date) {
+            slotRoot.innerHTML = '';
+            return;
+        }
+        const qs = new URLSearchParams({ date });
+        if (timeField && timeField.value) {
+            qs.set('time', timeField.value);
+        }
+        try {
+            const response = await fetch(API_BASE + '/api/bookings/slots?' + qs.toString());
+            const data = await response.json();
+            if (!response.ok || !data.ok) {
+                slotRoot.innerHTML = '<div class="slot-hint-empty">Не удалось загрузить свободные слоты</div>';
+                return;
+            }
+            const list = (data.available || []).slice(0, 8);
+            if (!list.length) {
+                slotRoot.innerHTML = '<div class="slot-hint-empty">На эту дату нет свободных слотов</div>';
+                return;
+            }
+            slotRoot.innerHTML = '<div class="slot-hint-title">Свободное время:</div>'
+                + '<div class="slot-chip-row">'
+                + list.map((t) => '<button type="button" class="slot-chip" data-time="' + t + '">' + t + '</button>').join('')
+                + '</div>';
+            slotRoot.querySelectorAll('.slot-chip').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    if (timeField) {
+                        timeField.value = btn.getAttribute('data-time') || '';
+                    }
+                });
+            });
+        } catch {
+            slotRoot.innerHTML = '<div class="slot-hint-empty">Сервер недоступен, подсказки времени временно отключены</div>';
+        }
+    }
+
+    if (dateField) {
+        dateField.addEventListener('change', loadSlotHints);
+    }
+    if (timeField) {
+        timeField.addEventListener('change', loadSlotHints);
+    }
+
     bookingForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const nameField = bookingForm.querySelector('input[type="text"]');
         const phoneField = bookingForm.querySelector('input[type="tel"]');
         const emailField = bookingForm.querySelector('input[type="email"]');
         const serviceField = bookingForm.querySelector('select');
-        const dateField = bookingForm.querySelector('input[type="date"]');
-        const timeField = bookingForm.querySelector('input[type="time"]');
         const noteField = bookingForm.querySelector('textarea');
 
         const payload = {
@@ -684,6 +732,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) {
                 if (data && data.conflict) {
                     showError((data.message || 'Это время занято') + (data.suggestedTime ? (' Рекомендуем: ' + data.suggestedTime) : ''));
+                    if (data.suggestedTime && timeField) {
+                        timeField.value = data.suggestedTime;
+                    }
+                    await loadSlotHints();
                     return;
                 }
                 showError(data.message || 'Не удалось записаться');
@@ -700,6 +752,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             bookingForm.reset();
+            if (slotRoot) slotRoot.innerHTML = '';
             showSuccess('Вы успешно записаны. Уведомления отправлены автоматически.');
         } catch (error) {
             showError('Сервер записи недоступен. Проверьте backend и повторите попытку.');

@@ -215,6 +215,24 @@ h1 {
     margin: 0;
 }
 
+.analytics-actions {
+    display: grid;
+    grid-template-columns: repeat(5, auto);
+    gap: 8px;
+    align-items: center;
+}
+
+.analytics-actions select,
+.analytics-actions input {
+    background: #0f1124;
+    border: 1px solid var(--line);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 8px 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+}
+
 .analytics-shell {
     border-color: rgba(196, 162, 74, 0.35);
     box-shadow: 0 16px 42px rgba(0, 0, 0, 0.35);
@@ -374,5 +392,10 @@ h1 {
     .panel-head {
         flex-direction: column;
         align-items: flex-start;
+    }
+
+    .analytics-actions {
+        grid-template-columns: 1fr;
+        width: 100%;
     }
 }

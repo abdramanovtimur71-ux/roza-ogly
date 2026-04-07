@@ -395,6 +395,9 @@
                             <label>Время</label>
                             <input type="time" id="bkTime" required>
                         </div>
+                        <div class="form-group full">
+                            <div class="slot-hints" id="dashboardBookingSlots"></div>
+                        </div>
                         <div class="form-group">
                             <label>Формат</label>
                             <select id="bkFormat">
@@ -774,6 +777,47 @@ function saveProfile(e) {
 }
 
 // Отправка записи
+async function loadDashboardSlotHints() {
+    const dateEl = document.getElementById('bkDate');
+    const timeEl = document.getElementById('bkTime');
+    const root = document.getElementById('dashboardBookingSlots');
+    if (!dateEl || !root) return;
+    const date = (dateEl.value || '').trim();
+    if (!date) {
+        root.innerHTML = '';
+        return;
+    }
+    const qs = new URLSearchParams({ date });
+    if (timeEl && timeEl.value) {
+        qs.set('time', timeEl.value);
+    }
+    try {
+        const response = await fetch(API_BASE + '/api/bookings/slots?' + qs.toString());
+        const data = await response.json();
+        if (!response.ok || !data.ok) {
+            root.innerHTML = '<div class="empty">Не удалось загрузить свободные слоты</div>';
+            return;
+        }
+        const list = (data.available || []).slice(0, 10);
+        if (!list.length) {
+            root.innerHTML = '<div class="empty">На выбранную дату нет свободных слотов</div>';
+            return;
+        }
+        root.innerHTML = '<div class="slot-hint-title">Свободные слоты:</div><div class="slot-chip-row">'
+            + list.map((t) => '<button type="button" class="slot-chip" data-time="' + t + '">' + t + '</button>').join('')
+            + '</div>';
+        root.querySelectorAll('.slot-chip').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                if (timeEl) {
+                    timeEl.value = btn.getAttribute('data-time') || '';
+                }
+            });
+        });
+    } catch (error) {
+        root.innerHTML = '<div class="empty">Сервер недоступен, подсказки времени отключены</div>';
+    }
+}
+
 async function submitBooking(e) {
     e.preventDefault();
     const name = document.getElementById('bkName').value;
@@ -795,12 +839,18 @@ async function submitBooking(e) {
         if (!response.ok) {
             const m = data.suggestedTime ? ((data.message || 'Это время занято') + ' Рекомендуем: ' + data.suggestedTime) : (data.message || 'Ошибка записи');
             showNotify(m, 'error');
+            if (data.suggestedTime) {
+                document.getElementById('bkTime').value = data.suggestedTime;
+            }
+            await loadDashboardSlotHints();
             return;
         }
 
         addAdminRecord('bookings', { name, email, service, date, time, format, source: 'dashboard-booking-api' });
         showNotify('Запись создана. Уведомления отправлены автоматически.', 'success');
         e.target.reset();
+        const slotRoot = document.getElementById('dashboardBookingSlots');
+        if (slotRoot) slotRoot.innerHTML = '';
     } catch (error) {
         showNotify('Сервер записи недоступен', 'error');
     }
@@ -1082,6 +1132,11 @@ window.addEventListener('DOMContentLoaded', () => {
     checkAuth();
     loadUser();
     loadTrainingStatus();
+
+    const dateEl = document.getElementById('bkDate');
+    const timeEl = document.getElementById('bkTime');
+    if (dateEl) dateEl.addEventListener('change', loadDashboardSlotHints);
+    if (timeEl) timeEl.addEventListener('change', loadDashboardSlotHints);
 
     // Хэш-навигация (#profile, #sessions и т.д.)
     const hash = window.location.hash.replace('#', '');
