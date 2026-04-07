@@ -57,6 +57,7 @@
             <button class="login-btn" onclick="openLoginModal()">Личный кабинет</button>
         </div>
     </nav>
+    <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
 
     <!-- Герой -->
     <section id="home" class="hero">
@@ -67,6 +68,11 @@
             <div class="hero-actions">
                 <button class="btn-primary" onclick="scrollToSection('#booking')">Записаться на сеанс</button>
                 <button class="btn-secondary" onclick="scrollToSection('#mediumship')">Узнать об услугах</button>
+            </div>
+            <div class="hero-trust-strip">
+                <span>Конфиденциально</span>
+                <span>Онлайн и лично</span>
+                <span>Ответ в день обращения</span>
             </div>
         </div>
         <div class="hero-tarot" aria-hidden="true">
@@ -259,21 +265,21 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label>Ваше имя</label>
-                        <input type="text" placeholder="Полное имя" required>
+                        <input id="bookingName" type="text" placeholder="Полное имя" required>
                     </div>
                     <div class="form-group">
                         <label>Телефон</label>
-                        <input type="tel" placeholder="+7 (000) 000-00-00" required>
+                        <input id="bookingPhone" type="tel" placeholder="+7 (000) 000-00-00" required>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label>Email</label>
-                        <input type="email" placeholder="ваш@email.com" required>
+                        <input id="bookingEmail" type="email" placeholder="ваш@email.com" required>
                     </div>
                     <div class="form-group">
                         <label>Тип услуги</label>
-                        <select required>
+                        <select id="bookingService" required>
                             <option value="">Выберите услугу</option>
                             <option value="tarot">Таро Чтение</option>
                             <option value="spirits">Контакт с Духами</option>
@@ -287,14 +293,22 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label>Желаемая дата</label>
-                        <input type="date" required>
+                        <input id="bookingDate" type="date" required>
                     </div>
                     <div class="form-group">
                         <label>Желаемое время</label>
-                        <input type="time" required>
+                        <input id="bookingTime" type="time" required>
                     </div>
                 </div>
                 <div class="slot-hints" id="mainBookingSlots"></div>
+                <div class="booking-insight" id="bookingInsight">
+                    <h3>Ваш оптимальный формат</h3>
+                    <p id="bookingInsightText">Выберите услугу, чтобы увидеть длительность, ориентир стоимости и подготовку к сеансу.</p>
+                    <div class="booking-insight-meta">
+                        <span id="bookingInsightDuration">Длительность: —</span>
+                        <span id="bookingInsightPrice">Стоимость: —</span>
+                    </div>
+                </div>
                 <div class="form-group full">
                     <label>Опишите ситуацию (необязательно)</label>
                     <textarea placeholder="Расскажите о том, что вас беспокоит..." rows="4"></textarea>

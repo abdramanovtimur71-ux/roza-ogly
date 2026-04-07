@@ -10,6 +10,15 @@ function scrollToSection(selector) {
     }
 }
 
+function updateScrollProgress() {
+    const bar = document.getElementById('scrollProgress');
+    if (!bar) return;
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const percent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    bar.style.width = percent.toFixed(2) + '%';
+}
+
 // Счетчик статистики
 const animateCountUp = () => {
     const statNumbers = document.querySelectorAll('.stat-number');
@@ -226,8 +235,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (firstNavLink) {
             firstNavLink.classList.add('active');
         }
+
+        updateScrollProgress();
     });
 });
+
+window.addEventListener('scroll', updateScrollProgress);
+window.addEventListener('resize', updateScrollProgress);
 
 // Обработка клавиатуры для навигации
 document.addEventListener('keydown', (e) => {
@@ -655,7 +669,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const dateField = bookingForm.querySelector('input[type="date"]');
     const timeField = bookingForm.querySelector('input[type="time"]');
+    const serviceField = bookingForm.querySelector('select');
     const slotRoot = document.getElementById('mainBookingSlots');
+    const insightText = document.getElementById('bookingInsightText');
+    const insightDuration = document.getElementById('bookingInsightDuration');
+    const insightPrice = document.getElementById('bookingInsightPrice');
+
+    const serviceAdvice = {
+        tarot: {
+            duration: '40-60 мин',
+            price: 'от 5 000 ₸',
+            text: 'Идеально для выбора между вариантами и понимания ближайшего периода.'
+        },
+        spirits: {
+            duration: '60-90 мин',
+            price: 'от 10 000 ₸',
+            text: 'Бережный глубокий формат. Лучше выбрать спокойное время без спешки.'
+        },
+        cleaning: {
+            duration: '60 мин',
+            price: 'от 7 500 ₸',
+            text: 'Рекомендуется после эмоциональной перегрузки и ощущения утечки сил.'
+        },
+        astro: {
+            duration: '60-90 мин',
+            price: 'от 9 000 ₸',
+            text: 'Подходит для планирования важных шагов на месяц/год вперед.'
+        },
+        reiki: {
+            duration: '45 мин',
+            price: 'от 6 000 ₸',
+            text: 'Мягкая энергетическая настройка, хорошо сочетается с восстановлением сна.'
+        },
+        coaching: {
+            duration: '90 мин',
+            price: 'от 12 500 ₸',
+            text: 'Долгий формат для системных изменений и индивидуальной стратегии.'
+        }
+    };
+
+    function renderBookingInsight() {
+        if (!serviceField || !insightText || !insightDuration || !insightPrice) return;
+        const value = serviceField.value;
+        const advice = serviceAdvice[value];
+        if (!advice) {
+            insightText.textContent = 'Выберите услугу, чтобы увидеть длительность, ориентир стоимости и подготовку к сеансу.';
+            insightDuration.textContent = 'Длительность: —';
+            insightPrice.textContent = 'Стоимость: —';
+            return;
+        }
+        insightText.textContent = advice.text;
+        insightDuration.textContent = 'Длительность: ' + advice.duration;
+        insightPrice.textContent = 'Стоимость: ' + advice.price;
+    }
 
     async function loadSlotHints() {
         if (!dateField || !slotRoot) return;
@@ -702,13 +768,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (timeField) {
         timeField.addEventListener('change', loadSlotHints);
     }
+    if (serviceField) {
+        serviceField.addEventListener('change', renderBookingInsight);
+    }
+
+    renderBookingInsight();
 
     bookingForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const nameField = bookingForm.querySelector('input[type="text"]');
         const phoneField = bookingForm.querySelector('input[type="tel"]');
         const emailField = bookingForm.querySelector('input[type="email"]');
-        const serviceField = bookingForm.querySelector('select');
         const noteField = bookingForm.querySelector('textarea');
 
         const payload = {
