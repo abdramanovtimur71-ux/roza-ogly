@@ -627,56 +627,6 @@ h1, h2, h3 { font-family: 'Cinzel', serif; font-weight: 600; color: var(--t1); l
 .info-card h3 { font-family: 'Cinzel', serif; font-size: 15px; color: var(--t1); }
 .info-card p { font-size: 13px; color: var(--t2); }
 
-/* ─── МАГАЗИН ───────────────────────────────────── */
-/* ─── ЦЕНЫ ───────────────────────────────────────── */
-.pricing { background: var(--bg2); }
-.pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 24px; margin-bottom: 60px; }
-
-.pricing-card {
-    padding: 40px 32px; background: var(--card);
-    border: 1px solid var(--br); border-radius: var(--r3);
-    transition: var(--tr); position: relative;
-    display: flex; flex-direction: column; gap: 0;
-}
-.pricing-card:hover { border-color: var(--br-h); box-shadow: var(--glow-p); }
-.pricing-card.featured {
-    border-color: var(--br-g);
-    background: linear-gradient(160deg, var(--card2) 0%, rgba(196,162,74,0.06) 100%);
-    box-shadow: var(--glow-g);
-}
-
-.plan-badge {
-    position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
-    padding: 5px 20px; background: linear-gradient(135deg, var(--gold), var(--gold-l));
-    color: #06070E; font-size: 10px; font-weight: 700;
-    letter-spacing: 2px; border-radius: 20px; white-space: nowrap;
-}
-.plan-header { margin-bottom: 20px; }
-.plan-name { font-family: 'Cinzel', serif; font-size: 20px; color: var(--t1); margin-bottom: 4px; }
-.plan-status { font-size: 12px; color: var(--t3); letter-spacing: 1px; }
-.plan-price { margin-bottom: 28px; }
-.price { font-family: 'Cinzel', serif; font-size: 48px; font-weight: 700; color: var(--t1); }
-.pricing-card.featured .price { color: var(--gold-l); }
-.currency { font-size: 14px; color: var(--t3); margin-left: 4px; }
-.plan-features { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; flex: 1; }
-.feature-item { font-size: 13.5px; color: var(--t2); padding-left: 20px; position: relative; }
-.feature-item::before { content: '✦'; position: absolute; left: 0; color: var(--purple); font-size: 9px; top: 3px; }
-.feature-item:has(✗)::before { color: var(--t3); }
-.plan-btn { width: 100%; padding: 14px; font-size: 13px; margin-top: auto; }
-.pricing-card.featured .plan-btn {
-    background: linear-gradient(135deg, var(--gold), var(--gold-l));
-    color: #06070E; box-shadow: 0 4px 24px rgba(196,162,74,0.30);
-}
-.pricing-card.featured .plan-btn:hover { box-shadow: 0 8px 40px rgba(196,162,74,0.50); }
-
-.pricing-comparison { background: var(--card); border: 1px solid var(--br); border-radius: var(--r3); padding: 40px; }
-.pricing-comparison h3 { font-family: 'Cinzel', serif; font-size: 20px; color: var(--t1); margin-bottom: 32px; text-align: center; }
-.comparison-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; }
-.comparison-item { text-align: center; }
-.comp-icon { font-size: 28px; display: block; margin-bottom: 12px; opacity: 0.75; }
-.comparison-item h4 { font-family: 'Cinzel', serif; font-size: 15px; color: var(--t1); margin-bottom: 6px; }
-.comparison-item p { font-size: 13px; color: var(--t2); }
-
 /* ─── ОТЗЫВЫ ─────────────────────────────────────── */
 .testimonials { background: var(--bg); }
 .testimonials-slider { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
@@ -869,27 +819,6 @@ h1, h2, h3 { font-family: 'Cinzel', serif; font-weight: 600; color: var(--t1); l
     text-decoration: none;
     border-bottom: 1px dashed rgba(212,174,92,0.5);
 }
-
-/* ─── ПРЕДЛОЖЕНИЯ ────────────────────────────────── */
-.offers { background: var(--bg2); }
-.offers-banner { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
-.offer-card {
-    padding: 36px; background: var(--card); border: 1px solid var(--br);
-    border-radius: var(--r3); text-align: center; position: relative;
-    transition: var(--tr);
-}
-.offer-card:hover { border-color: var(--br-h); box-shadow: var(--glow-p); }
-.offer-card.featured-offer { border-color: var(--br-g); }
-.offer-badge {
-    display: inline-block; font-size: 10px; letter-spacing: 2px;
-    color: var(--gold); border: 1px solid var(--br-g);
-    padding: 4px 14px; border-radius: 20px; margin-bottom: 16px;
-}
-.offer-card h3 { font-family: 'Cinzel', serif; font-size: 19px; color: var(--t1); margin-bottom: 8px; }
-.offer-card p { font-size: 13.5px; color: var(--t2); margin-bottom: 20px; }
-.offer-price { margin-bottom: 24px; }
-.original { font-size: 15px; color: var(--t3); text-decoration: line-through; margin-right: 10px; }
-.discount { font-family: 'Cinzel', serif; font-size: 28px; color: var(--gold-l); }
 
 /* ─── ИНТЕРАКТИВНЫЕ ГАДАНИЯ ──────────────────────── */
 .interactive { background: var(--bg3); padding: 110px 0; }
@@ -1187,7 +1116,6 @@ h1, h2, h3 { font-family: 'Cinzel', serif; font-weight: 600; color: var(--t1); l
     .navbar .container { padding: 14px 20px; }
     .booking-form { padding: 28px 22px; }
     .form-row { grid-template-columns: 1fr; }
-    .pricing-grid { grid-template-columns: 1fr; }
     .modal-content { padding: 36px 26px; }
     .stats .container { grid-template-columns: repeat(2, 1fr); gap: 30px; }
     .theme-toggle { top: 76px; right: 14px; }
