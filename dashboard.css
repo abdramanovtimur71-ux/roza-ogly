@@ -331,6 +331,11 @@ h1, h2, h3, h4 { font-family: 'Cinzel', serif; font-weight: 600; color: var(--t1
     gap: 24px;
 }
 
+.shop-dashboard-grid > *:only-child {
+    grid-column: 1 / -1;
+    max-width: 860px;
+}
+
 .shop-dash-card {
     background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0)), var(--card);
 }
