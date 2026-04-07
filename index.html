@@ -40,6 +40,7 @@
                 <li><a href="#home" class="nav-link">Главная</a></li>
                 <li><a href="#about" class="nav-link">О мастере</a></li>
                 <li><a href="#mediumship" class="nav-link">Услуги</a></li>
+                <li><a href="#session-planner" class="nav-link">Диагностика</a></li>
                 <li><a href="#testimonials" class="nav-link">Отзывы</a></li>
                 <li><a href="#blog" class="nav-link">Блог</a></li>
                 <li><a href="#contact" class="nav-link">Контакты</a></li>
@@ -473,6 +474,75 @@
                 <h3>Ваша рекомендация:</h3>
                 <div id="resultContent"></div>
                 <button class="btn-primary" onclick="scrollToSection('#booking')" style="margin-top:20px">Записаться на сеанс</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Экспресс-план сеанса -->
+    <section id="session-planner" class="session-planner">
+        <div class="container">
+            <span class="section-label">Быстрый подбор</span>
+            <h2 class="section-title">Экспресс-План Сеанса</h2>
+            <p class="section-subtitle">Выберите параметры и получите персональную рекомендацию за 10 секунд</p>
+
+            <div class="planner-grid">
+                <div class="planner-form-card slide-in">
+                    <label class="planner-field">
+                        <span>Запрос</span>
+                        <select id="plannerGoal">
+                            <option value="clarity">Нужна ясность в решении</option>
+                            <option value="energy">Чувствую усталость и тяжесть</option>
+                            <option value="contact">Хочу контакт с ушедшим близким</option>
+                            <option value="love">Вопросы отношений и любви</option>
+                        </select>
+                    </label>
+
+                    <label class="planner-field">
+                        <span>Формат</span>
+                        <select id="plannerFormat">
+                            <option value="online">Онлайн</option>
+                            <option value="offline">Личная встреча</option>
+                        </select>
+                    </label>
+
+                    <label class="planner-field">
+                        <span>Срочность</span>
+                        <select id="plannerUrgency">
+                            <option value="normal">Спокойно, в ближайшие дни</option>
+                            <option value="fast">Нужно в течение 24 часов</option>
+                        </select>
+                    </label>
+
+                    <button type="button" class="btn-primary planner-btn" onclick="calculateSessionPlan()">Рассчитать план</button>
+                </div>
+
+                <div class="planner-result-card slide-in" id="plannerResultCard">
+                    <div class="planner-empty" id="plannerEmptyState">
+                        Выберите параметры и нажмите «Рассчитать план».
+                    </div>
+                    <div class="planner-result hidden" id="plannerResult">
+                        <h3 id="plannerTitle"></h3>
+                        <p id="plannerDescription"></p>
+                        <div class="planner-meta">
+                            <div class="planner-meta-item">
+                                <span>Длительность</span>
+                                <strong id="plannerDuration"></strong>
+                            </div>
+                            <div class="planner-meta-item">
+                                <span>Ориентир цены</span>
+                                <strong id="plannerPrice"></strong>
+                            </div>
+                            <div class="planner-meta-item">
+                                <span>Ближайшее окно</span>
+                                <strong id="plannerSlot"></strong>
+                            </div>
+                        </div>
+                        <div class="planner-actions">
+                            <button class="btn-primary" onclick="scrollToSection('#booking')">Записаться</button>
+                            <button class="btn-secondary" onclick="scrollToSection('#contact')">Задать вопрос</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>

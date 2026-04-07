@@ -1180,6 +1180,76 @@ function toggleFaq(questionEl) {
 }
 
 /* ============================================
+   ЭКСПРЕСС-ПЛАН СЕАНСА
+   ============================================ */
+
+function calculateSessionPlan() {
+    const goal = document.getElementById('plannerGoal')?.value;
+    const format = document.getElementById('plannerFormat')?.value;
+    const urgency = document.getElementById('plannerUrgency')?.value;
+
+    if (!goal || !format || !urgency) {
+        return;
+    }
+
+    const plans = {
+        clarity: {
+            title: 'Таро чтение с фокусом на решение',
+            description: 'Определяем 2-3 сценария развития, риски и лучший шаг на текущий период.',
+            duration: '40-60 мин',
+            price: 'от 5 000 ₸'
+        },
+        energy: {
+            title: 'Энергетическая диагностика и мягкая чистка',
+            description: 'Выявляем энергетические утечки, даем практики восстановления и стабилизации.',
+            duration: '60 мин',
+            price: 'от 7 500 ₸'
+        },
+        contact: {
+            title: 'Медиумический контакт',
+            description: 'Деликатный сеанс связи с ушедшим близким с бережным сопровождением.',
+            duration: '60-90 мин',
+            price: 'от 10 000 ₸'
+        },
+        love: {
+            title: 'Консультация по отношениям',
+            description: 'Разбираем динамику пары, точки напряжения и шаги для гармонизации.',
+            duration: '45-60 мин',
+            price: 'от 6 500 ₸'
+        }
+    };
+
+    const selectedPlan = plans[goal];
+    const priceAdjust = format === 'offline' ? 1500 : 0;
+    const slotText = urgency === 'fast' ? 'сегодня/завтра' : 'в течение 1-3 дней';
+
+    document.getElementById('plannerTitle').textContent = selectedPlan.title;
+    document.getElementById('plannerDescription').textContent = selectedPlan.description + (format === 'offline' ? ' Формат: личная встреча.' : ' Формат: онлайн-сеанс.');
+    document.getElementById('plannerDuration').textContent = selectedPlan.duration;
+    document.getElementById('plannerPrice').textContent = priceAdjust ? selectedPlan.price + ' + формат' : selectedPlan.price;
+    document.getElementById('plannerSlot').textContent = slotText;
+
+    const empty = document.getElementById('plannerEmptyState');
+    const result = document.getElementById('plannerResult');
+    if (empty) {
+        empty.classList.add('hidden');
+    }
+    if (result) {
+        result.classList.remove('hidden');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const plannerFields = ['plannerGoal', 'plannerFormat', 'plannerUrgency'];
+    plannerFields.forEach(id => {
+        const field = document.getElementById(id);
+        if (field) {
+            field.addEventListener('change', calculateSessionPlan);
+        }
+    });
+});
+
+/* ============================================
    ПРЕЛОАДЕР
    ============================================ */
 
