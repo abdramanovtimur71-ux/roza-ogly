@@ -31,9 +31,6 @@
         <a href="#" class="sidebar-link" onclick="showPage('profile', this)">
             <span class="sidebar-icon">✦</span> Мой профиль
         </a>
-        <a href="#" class="sidebar-link" onclick="showPage('shop', this)">
-            <span class="sidebar-icon">🔮</span> Магазин
-        </a>
 
         <div class="sidebar-section-label">Сеансы</div>
         <a href="#" class="sidebar-link" onclick="showPage('sessions', this)">
@@ -216,10 +213,7 @@
                 <div class="profile-avatar-info">
                     <h4 id="profileDisplayName">Анна Петрова</h4>
                     <p>Участник с апреля 2026 · Обучение: <span style="color:var(--gold)">по заявке</span></p>
-                    <div style="display:flex;gap:10px;flex-wrap:wrap">
-                        <button class="btn btn-outline btn-sm">Изменить фото</button>
-                        <button class="btn btn-gold btn-sm" onclick="showPage('shop', document.querySelector('[onclick*=shop]'))">Открыть магазин</button>
-                    </div>
+                    <button class="btn btn-outline btn-sm">Изменить фото</button>
                 </div>
             </div>
 
@@ -258,48 +252,6 @@
                     </div>
                     <button type="submit" class="btn btn-primary">Сохранить изменения</button>
                 </form>
-            </div>
-        </div>
-
-        <!-- ─── СТРАНИЦА: МАГАЗИН ─────────────────── -->
-        <div id="page-shop" class="page">
-            <span class="page-label">Подбор услуг</span>
-            <div class="page-header">
-                <h1>Магазин</h1>
-                <p>Выберите формат приема или обряд и отправьте заявку на ближайшее время</p>
-            </div>
-
-            <div class="shop-dashboard-grid">
-                <div class="card shop-dash-card">
-                    <div class="card-title">✨ Прайс на привороты <span>Подбор обряда</span></div>
-                    <img src="images/shop-ritual.jpg" alt="Свечи для обряда" class="shop-dash-image">
-
-                    <div class="spell-dash-item">
-                        <h3>Стандартный приворот</h3>
-                        <p class="shop-price-line">от 120 000 тг / 24 000 руб / 240 $</p>
-                        <p>Срок работы: 21 день</p>
-                        <p>Мягкое воздействие для возвращения внимания, усиления чувств и налаживания общения.</p>
-                    </div>
-
-                    <div class="spell-dash-item">
-                        <h3>Средний приворот</h3>
-                        <p class="shop-price-line">от 250 000 тг / 50 000 руб / 500 $</p>
-                        <p>Срок работы: 14 дней</p>
-                        <p>Глубокая работа на восстановление отношений, усиление тяги и закрепление результата.</p>
-                    </div>
-
-                    <div class="spell-dash-item">
-                        <h3>Сильный приворот</h3>
-                        <p class="shop-price-line">до 500 000 тг / до 100 000 руб / до 1 000 $</p>
-                        <p>Срок работы: 7 дней</p>
-                        <p>Мощный обряд для сложных ситуаций и полного возврата человека.</p>
-                    </div>
-
-                    <p class="shop-dash-note">Для подбора обряда и проверки совместимости по судьбе отправьте имена, даты рождения и по возможности фотографии.</p>
-                    <div class="shop-dash-actions">
-                        <a href="https://wa.me/77072867777?text=%D0%A5%D0%BE%D1%87%D1%83%20%D0%BF%D0%BE%D0%B4%D0%BE%D0%B1%D1%80%D0%B0%D1%82%D1%8C%20%D0%BF%D1%80%D0%B8%D0%B2%D0%BE%D1%80%D0%BE%D1%82" class="btn btn-primary" style="text-decoration:none;text-align:center">Написать в WhatsApp</a>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -783,7 +735,6 @@ function showPage(pageId, linkEl) {
     const titles = {
         overview: ['Обзор', 'Сводная информация по вашему кабинету'],
         profile: ['Мой профиль', 'Личные данные и контакты'],
-        shop: ['Магазин', 'Прием, консультации и привороты'],
         sessions: ['Мои сеансы', 'Предстоящие встречи и история'],
         booking: ['Новая запись', 'Запишитесь на прием'],
         subscription: ['Обучение', 'Оплата, лимит мест, лист ожидания'],
